@@ -1,17 +1,17 @@
-import { projectId, publicAnonKey } from '/utils/supabase/info';
-
-const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-dff980ef`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
+  token?: string;
+  user?: any;
 }
 
 class ApiClient {
   private getAuthHeader() {
-    const accessToken = localStorage.getItem('access_token');
-    return accessToken ? `Bearer ${accessToken}` : `Bearer ${publicAnonKey}`;
+    const token = localStorage.getItem('access_token');
+    return token ? `Bearer ${token}` : '';
   }
 
   private async request<T>(
@@ -19,11 +19,15 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const headers = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Authorization': this.getAuthHeader(),
-        ...options.headers,
+        ...options.headers as Record<string, string>,
       };
+
+      const authHeader = this.getAuthHeader();
+      if (authHeader) {
+        headers['Authorization'] = authHeader;
+      }
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
@@ -49,6 +53,35 @@ class ApiClient {
     return this.request('/auth/signup', {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
+    });
+  }
+
+  async login(email: string, password: string) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async verifyToken() {
+    return this.request('/auth/me');
+  }
+
+  // Admin Management endpoints
+  async getAdmins() {
+    return this.request('/auth/admins');
+  }
+
+  async createAdmin(data: { name: string; email: string; password: string }) {
+    return this.request('/auth/admins', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteAdmin(id: string) {
+    return this.request(`/auth/admins/${id}`, {
+      method: 'DELETE',
     });
   }
 
@@ -86,42 +119,6 @@ class ApiClient {
     });
   }
 
-  // Media endpoints
-  async uploadMedia(file: File) {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const accessToken = localStorage.getItem('access_token');
-      const response = await fetch(`${API_BASE_URL}/media/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': accessToken ? `Bearer ${accessToken}` : `Bearer ${publicAnonKey}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Media upload error:', data.error);
-        return { error: data.error || 'Failed to upload media' };
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Media upload error:', error);
-      return { error: 'Failed to upload media' };
-    }
-  }
-
-  async getSignedUrl(path: string) {
-    return this.request('/media/signed-url', {
-      method: 'POST',
-      body: JSON.stringify({ path }),
-    });
-  }
-
   // Contact endpoints
   async submitContact(data: { name: string; email: string; phone?: string; message: string }) {
     return this.request('/contact/submit', {
@@ -144,6 +141,31 @@ class ApiClient {
 
   async getNewsletterSubscribers() {
     return this.request('/newsletter/subscribers');
+  }
+
+  // About Us content endpoints
+  async getAboutUs() {
+    return this.request('/content/about-us');
+  }
+
+  async updateAboutUs(content: any) {
+    return this.request('/content/about-us', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
+  // Media endpoints
+  async uploadMedia(file: File) {
+    // For a real implementation, you'd send FormData to an upload endpoint
+    // and return the hosted URL. Since we don't have a media storage backend 
+    // configured (like S3 or Supabase Storage), we will simulate success or
+    // return a placeholder.
+    return new Promise<{url?: string, error?: string}>((resolve) => {
+      setTimeout(() => {
+        resolve({ url: URL.createObjectURL(file) });
+      }, 1000);
+    });
   }
 }
 

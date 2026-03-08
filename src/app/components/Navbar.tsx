@@ -21,7 +21,7 @@ export function Navbar() {
 
   const menuItems = [
     { label: "Home", href: "/#home" },
-    { label: "About Us", href: "/#about" },
+    { label: "About Us", href: "/about" },
     { label: "Core Initiatives", href: "/#initiatives" },
     { label: "Impact Stories", href: "/#stories" },
     { label: "Contact", href: "/#contact" }

@@ -1,96 +1,41 @@
 import { Users, Heart, GraduationCap, Home, BookOpen, Stethoscope, Baby, School, Pill, Activity } from "lucide-react";
+import { useState, useEffect } from "react";
+import { apiClient } from "../../utils/api/client";
+
+const iconMap: Record<string, any> = {
+  Users, Heart, GraduationCap, Home, BookOpen, Stethoscope, Baby, School, Pill, Activity
+};
 
 export function ImpactStats() {
-  const stats = [
-    {
-      icon: Users,
-      number: "62",
-      label: "Communities supported",
-      sublabel: "Relief & rehabilitation programs",
-      color: "#0F6B6B",
-      gradient: "from-[#0F6B6B] to-[#0d5757]"
-    },
-    {
-      icon: Heart,
-      number: "465",
-      label: "Women trained",
-      sublabel: "Skill development programs",
-      color: "#E87D3E",
-      gradient: "from-[#E87D3E] to-[#d66d30]"
-    },
-    {
-      icon: GraduationCap,
-      number: "15,876",
-      label: "Nutrition meals provided",
-      sublabel: "Poshan Maa Initiative",
-      color: "#0F6B6B",
-      gradient: "from-[#0F6B6B] to-[#0d5757]"
-    },
-    {
-      icon: BookOpen,
-      number: "610",
-      label: "Children enrolled",
-      sublabel: "27 evening tuition centers",
-      color: "#E87D3E",
-      gradient: "from-[#E87D3E] to-[#d66d30]"
-    },
-    {
-      icon: School,
-      number: "415",
-      label: "Students in schools",
-      sublabel: "2 educational institutions",
-      color: "#0F6B6B",
-      gradient: "from-[#0F6B6B] to-[#0d5757]"
-    },
-    {
-      icon: BookOpen,
-      number: "68",
-      label: "Adults learning",
-      sublabel: "Adult literacy centers",
-      color: "#E87D3E",
-      gradient: "from-[#E87D3E] to-[#d66d30]"
-    },
-    {
-      icon: Baby,
-      number: "194",
-      label: "Children in care",
-      sublabel: "Childcare centers",
-      color: "#0F6B6B",
-      gradient: "from-[#0F6B6B] to-[#0d5757]"
-    },
-    {
-      icon: Home,
-      number: "552",
-      label: "Tribal children",
-      sublabel: "Chenchu tribal tuition centers",
-      color: "#E87D3E",
-      gradient: "from-[#E87D3E] to-[#d66d30]"
-    },
-    {
-      icon: Pill,
-      number: "12,000",
-      label: "Vitamin tablets",
-      sublabel: "Distributed across 6 states",
-      color: "#0F6B6B",
-      gradient: "from-[#0F6B6B] to-[#0d5757]"
-    },
-    {
-      icon: Stethoscope,
-      number: "3,779",
-      label: "Patients treated",
-      sublabel: "36 villages through medical camps",
-      color: "#E87D3E",
-      gradient: "from-[#E87D3E] to-[#d66d30]"
-    },
-    {
-      icon: Activity,
-      number: "19,389",
-      label: "Healthcare visits",
-      sublabel: "10 Primary Health Centers",
-      color: "#0F6B6B",
-      gradient: "from-[#0F6B6B] to-[#0d5757]"
+  const [stats, setStats] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const response = await apiClient.getImpactStats();
+        if (response.data && (response.data as any[]).length > 0) {
+          setStats(response.data as any[]);
+        } else {
+          setStats([
+            { icon: "Users", number: "62", label: "Communities supported", sublabel: "Relief & rehabilitation programs", color: "#0F6B6B", gradient: "from-[#0F6B6B] to-[#0d5757]" },
+            { icon: "Heart", number: "465", label: "Women trained", sublabel: "Skill development programs", color: "#E87D3E", gradient: "from-[#E87D3E] to-[#d66d30]" },
+            { icon: "GraduationCap", number: "15,876", label: "Nutrition meals provided", sublabel: "Poshan Maa Initiative", color: "#0F6B6B", gradient: "from-[#0F6B6B] to-[#0d5757]" },
+            { icon: "BookOpen", number: "610", label: "Children enrolled", sublabel: "27 evening tuition centers", color: "#E87D3E", gradient: "from-[#E87D3E] to-[#d66d30]" },
+            { icon: "School", number: "415", label: "Students in schools", sublabel: "2 educational institutions", color: "#0F6B6B", gradient: "from-[#0F6B6B] to-[#0d5757]" },
+            { icon: "BookOpen", number: "68", label: "Adults learning", sublabel: "Adult literacy centers", color: "#E87D3E", gradient: "from-[#E87D3E] to-[#d66d30]" },
+            { icon: "Baby", number: "194", label: "Children in care", sublabel: "Childcare centers", color: "#0F6B6B", gradient: "from-[#0F6B6B] to-[#0d5757]" },
+            { icon: "Home", number: "552", label: "Tribal children", sublabel: "Chenchu tribal tuition centers", color: "#E87D3E", gradient: "from-[#E87D3E] to-[#d66d30]" },
+            { icon: "Pill", number: "12,000", label: "Vitamin tablets", sublabel: "Distributed across 6 states", color: "#0F6B6B", gradient: "from-[#0F6B6B] to-[#0d5757]" },
+            { icon: "Stethoscope", number: "3,779", label: "Patients treated", sublabel: "36 villages through medical camps", color: "#E87D3E", gradient: "from-[#E87D3E] to-[#d66d30]" },
+            { icon: "Activity", number: "19,389", label: "Healthcare visits", sublabel: "10 Primary Health Centers", color: "#0F6B6B", gradient: "from-[#0F6B6B] to-[#0d5757]" }
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to load impact stats:", error);
+      }
     }
-  ];
+    loadStats();
+  }, []);
 
   return (
     <section id="initiatives" className="py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
@@ -123,7 +68,10 @@ export function ImpactStats() {
               <div className="relative">
                 {/* Icon */}
                 <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl mb-4 transition-all duration-300 bg-gradient-to-br ${stat.gradient} group-hover:scale-110`}>
-                  <stat.icon size={28} className="text-white" />
+                  {(() => {
+                    const IconComponent = iconMap[stat.icon] || Users;
+                    return <IconComponent size={28} className="text-white" />;
+                  })()}
                 </div>
 
                 {/* Number */}

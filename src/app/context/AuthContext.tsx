@@ -1,10 +1,14 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '../utils/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
+import { apiClient } from '../../utils/api/client';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
@@ -14,49 +18,41 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.access_token) {
-        localStorage.setItem('access_token', session.access_token);
-      }
+    // Check for existing token on mount
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      apiClient.verifyToken()
+        .then((response) => {
+          if (response.user) {
+            setUser(response.user);
+          } else {
+            localStorage.removeItem('access_token');
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          localStorage.removeItem('access_token');
+          setLoading(false);
+        });
+    } else {
       setLoading(false);
-    });
-
-    // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.access_token) {
-        localStorage.setItem('access_token', session.access_token);
-      } else {
-        localStorage.removeItem('access_token');
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
   }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const response = await apiClient.login(email, password);
 
-      if (error) {
-        console.error('Sign in error:', error.message);
-        return { error: error.message };
+      if (response.error) {
+        return { error: response.error };
       }
 
-      if (data.session?.access_token) {
-        localStorage.setItem('access_token', data.session.access_token);
+      if (response.token) {
+        localStorage.setItem('access_token', response.token);
+        setUser(response.user);
       }
 
       return {};
@@ -67,18 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      localStorage.removeItem('access_token');
-      setUser(null);
-      setSession(null);
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
+    localStorage.removeItem('access_token');
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
