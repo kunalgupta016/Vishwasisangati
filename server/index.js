@@ -26,6 +26,10 @@ app.use('/api/content', contentRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Vishwasisangati API is running');
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
