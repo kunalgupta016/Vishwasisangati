@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '../../utils/api/client';
 import { toast } from 'sonner';
+import logo from "../../assets/logo.png";
 
 type TabType = 'hero' | 'about-us' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins';
 
@@ -297,7 +298,7 @@ export function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <LayoutDashboard className="text-[#0F6B6B]" size={32} />
+              <img src={logo} alt="Logo" className="h-10 w-auto object-contain brightness-0 opacity-90" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
                 <p className="text-sm text-gray-600">Vishwasi Sangati NGO</p>

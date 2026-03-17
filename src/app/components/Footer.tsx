@@ -3,6 +3,7 @@ import { useState } from "react";
 import { apiClient } from "../../utils/api/client";
 import { toast } from "sonner";
 import { ContactFormDialog } from "./ContactFormDialog";
+import logo from "../../assets/logo.png";
 
 export function Footer() {
   const [email, setEmail] = useState('');
@@ -93,8 +94,7 @@ export function Footer() {
               {/* About Column */}
               <div className="lg:col-span-1">
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold italic mb-1">Vishwasi Sangati</h3>
-                  <p className="text-sm text-white/70 italic">serving hope to rural community</p>
+                  <img src={logo} alt="Vishwasi Sangati" className="h-16 w-auto object-contain brightness-0 invert" />
                 </div>
                 <p className="text-white/80 leading-relaxed mb-6">
                   Empowering communities through dedicated service, sustainable development, and compassionate action since 2009.

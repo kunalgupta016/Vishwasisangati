@@ -1,7 +1,7 @@
 import { Menu, X, Heart, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-
+import logo from "../../assets/logo.png";
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -47,9 +47,12 @@ export function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <a href="/" className="flex-shrink-0 group">
-            <div className={`transition-colors duration-300 ${(scrolled || !isHomePage) ? "text-[#0F6B6B]" : "text-white"}`}>
-              <h2 className="text-2xl font-bold italic leading-tight">Vishwasi Sangati</h2>
-              <p className="text-xs tracking-wide opacity-80">serving hope to rural community</p>
+            <div className="transition-all duration-300">
+              <img 
+                src={logo} 
+                alt="Vishwasi Sangati Logo" 
+                className={`h-16 w-auto object-contain transition-all duration-300 ${!scrolled && isHomePage ? 'brightness-0 invert' : 'brightness-0 opacity-90'}`}
+              />
             </div>
           </a>
 

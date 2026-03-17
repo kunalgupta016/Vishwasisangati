@@ -63,8 +63,8 @@ export function OurWork() {
                 
                 {/* Icon badge */}
                 <div className="absolute top-4 left-4">
-                  <div className="p-3 rounded-2xl backdrop-blur-sm" style={{ backgroundColor: `${program.color}CC` }}>
-                    <program.icon size={24} className="text-white" />
+                  <div className="p-4 rounded-2xl backdrop-blur-sm" style={{ backgroundColor: `${program.color}CC` }}>
+                    <program.icon size={36} className="text-white" />
                   </div>
                 </div>
 

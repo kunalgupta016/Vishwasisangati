@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import logo from "../../assets/logo.png";
 
 export function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -49,8 +50,8 @@ export function AdminLogin() {
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#0F6B6B] rounded-2xl mb-4">
-              <Lock className="text-white" size={32} />
+            <div className="flex justify-center mb-6">
+              <img src={logo} alt="Vishwasi Sangati Logo" className="h-20 w-auto object-contain brightness-0 opacity-90" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
             <p className="text-gray-600">Sign in to manage your website</p>
