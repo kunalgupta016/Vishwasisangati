@@ -1,29 +1,52 @@
 import { Quote, Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { apiClient } from "../../utils/api/client";
 
-export function Testimonials() {
-  const testimonials = [
+const defaultContent = {
+  sectionSubtitle: "Testimonials",
+  sectionTitle: "What People Say",
+  sectionDescription: "Hear from our volunteers and community members about their experiences",
+  testimonials: [
     {
       quote: "Volunteering with Vishwasi Sangati has been the most rewarding experience of my life. Seeing the direct impact of our work in communities is truly inspiring.",
       name: "Priya Sharma",
       role: "Volunteer since 2023",
-      image: "https://images.unsplash.com/photo-1623594675959-02360202d4d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMHBvcnRyYWl0JTIwc21pbGluZ3xlbnwxfHx8fDE3NzI3MTA2NjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      image: "https://images.unsplash.com/photo-1623594675959-02360202d4d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMHBvcnRyYWl0JTIwc21pbGluZ3xlbnwxfHx8fDE3NzI3MTA2NjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       rating: 5
     },
     {
       quote: "The education program has transformed our village. Children now have access to quality learning resources and a brighter future ahead.",
       name: "Rajesh Kumar",
       role: "Community Leader",
-      image: "https://images.unsplash.com/photo-1769636930047-4478f12cf430?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBwb3J0cmFpdCUyMGNvbmZpZGVudHxlbnwxfHx8fDE3NzI3MDExNzV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      image: "https://images.unsplash.com/photo-1769636930047-4478f12cf430?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBwb3J0cmFpdCUyMGNvbmZpZGVudHxlbnwxfHx8fDE3NzI3MDExNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       rating: 5
     },
     {
       quote: "Being part of the healthcare initiative has allowed me to contribute my medical skills to those who need it most. It's deeply fulfilling work.",
       name: "Dr. Anjali Verma",
       role: "Medical Volunteer",
-      image: "https://images.unsplash.com/photo-1765648684555-de2d0f6af467?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB5b3VuZyUyMHdvbWFuJTIwaGFwcHl8ZW58MXx8fHwxNzcyNzExNjU5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      image: "https://images.unsplash.com/photo-1765648684555-de2d0f6af467?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB5b3VuZyUyMHdvbWFuJTIwaGFwcHl8ZW58MXx8fHwxNzcyNzExNjU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       rating: 5
     }
-  ];
+  ]
+};
+
+export function Testimonials() {
+  const [content, setContent] = useState(defaultContent);
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const response = await apiClient.getTestimonials();
+        if (response.data) {
+          setContent({ ...defaultContent, ...(response.data as any) });
+        }
+      } catch (error) {
+        console.error("Failed to load testimonials content:", error);
+      }
+    }
+    loadContent();
+  }, []);
 
   return (
     <section className="py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
@@ -34,15 +57,15 @@ export function Testimonials() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="text-[#E87D3E] font-semibold mb-3 uppercase tracking-wider">Testimonials</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">What People Say</h2>
+          <p className="text-[#E87D3E] font-semibold mb-3 uppercase tracking-wider">{content.sectionSubtitle}</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{content.sectionTitle}</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Hear from our volunteers and community members about their experiences
+            {content.sectionDescription}
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
+          {content.testimonials.map((testimonial: any, index: number) => (
             <div
               key={index}
               className="group relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 overflow-hidden"
@@ -58,7 +81,7 @@ export function Testimonials() {
                 
                 {/* Stars */}
                 <div className="flex gap-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
+                  {Array.from({ length: testimonial.rating || 5 }).map((_, i) => (
                     <Star key={i} size={16} className="text-[#E87D3E] fill-[#E87D3E]" />
                   ))}
                 </div>

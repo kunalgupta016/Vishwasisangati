@@ -14,13 +14,19 @@ import {
   Plus,
   Trash2,
   Eye,
-  UserPlus
+  UserPlus,
+  Navigation,
+  Target,
+  Briefcase,
+  Quote,
+  Star as StarIcon,
+  MapPin
 } from 'lucide-react';
 import { apiClient } from '../../utils/api/client';
 import { toast } from 'sonner';
 import logo from "../../assets/logo.png";
 
-type TabType = 'hero' | 'about-us' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins';
+type TabType = 'hero' | 'about-us' | 'navbar' | 'vision-mission' | 'our-work' | 'testimonials' | 'featured-project' | 'footer' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins';
 
 export function AdminDashboard() {
   const { user, signOut } = useAuth();
@@ -52,6 +58,25 @@ export function AdminDashboard() {
   const [admins, setAdmins] = useState<any[]>([]);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [newAdmin, setNewAdmin] = useState({ name: '', email: '', password: '' });
+
+  // Navbar state
+  const [navbarContent, setNavbarContent] = useState<any>(null);
+
+  // Vision & Mission state
+  const [visionMissionContent, setVisionMissionContent] = useState<any>(null);
+
+  // Our Work state
+  const [ourWorkContent, setOurWorkContent] = useState<any>(null);
+
+  // Testimonials state
+  const [testimonialsContent, setTestimonialsContent] = useState<any>(null);
+
+  // Featured Project state
+  const [featuredProjectContent, setFeaturedProjectContent] = useState<any>(null);
+  const [uploadingFeaturedProject, setUploadingFeaturedProject] = useState(false);
+
+  // Footer state
+  const [footerContent, setFooterContent] = useState<any>(null);
 
   // Load initial data
   useEffect(() => {
@@ -110,6 +135,104 @@ export function AdminDashboard() {
         if (response.data) {
           setAdmins(Array.isArray(response.data) ? response.data : []);
         }
+      } else if (activeTab === 'navbar') {
+        const response = await apiClient.getNavbar();
+        setNavbarContent(response.data || {
+          menuItems: [
+            { label: "Home", href: "/#home" },
+            { label: "About Us", href: "/#about" },
+            { label: "Core Initiatives", href: "/#initiatives" },
+            { label: "Impact Stories", href: "/#stories" },
+            { label: "Contact", href: "/#contact" }
+          ]
+        });
+      } else if (activeTab === 'vision-mission') {
+        const response = await apiClient.getVisionMission();
+        setVisionMissionContent(response.data || {
+          sectionSubtitle: "Who We Are",
+          sectionTitle: "Our Vision & Mission",
+          sectionDescription: "Driven by compassion, guided by purpose",
+          visionText: "A resilient India where every child, woman, and family lives with dignity, opportunity, and hope for a brighter tomorrow.",
+          missionParagraph1: "To alleviate poverty and uplift vulnerable rural communities by providing access to education, healthcare, and sustainable livelihoods.",
+          missionParagraph2: "Through women's empowerment, youth engagement, and community-led initiatives, we nurture people-driven change that is owned, sustained, and carried forward by the communities themselves.",
+          missionHighlight: "From schools and childcare centers to medical camps, sewing workshops, and nutrition campaigns—we equip every child, woman, and family with the tools to live with dignity.",
+          coreValues: [
+            { label: "Compassion", emoji: "❤️" },
+            { label: "Integrity", emoji: "🤝" },
+            { label: "Empowerment", emoji: "💪" },
+            { label: "Sustainability", emoji: "🌱" }
+          ]
+        });
+      } else if (activeTab === 'our-work') {
+        const response = await apiClient.getOurWork();
+        setOurWorkContent(response.data || {
+          sectionSubtitle: "Core Initiatives",
+          sectionTitle: "Our Work",
+          sectionDescription: "We focus on three key areas to create meaningful and lasting impact in communities",
+          programs: [
+            { title: "Education Program", description: "Providing quality education through 27 evening tuition centers and 2 educational institutions.", image: "", icon: "GraduationCap", stats: "610+ Children", color: "#0F6B6B" },
+            { title: "Healthcare Initiative", description: "Delivering essential healthcare through 10 Primary Health Centers and medical camps.", image: "", icon: "Stethoscope", stats: "19,389 Visits", color: "#E87D3E" },
+            { title: "Community Development", description: "Empowering 62 communities through relief & rehabilitation and women's skill training.", image: "", icon: "Users", stats: "62 Communities", color: "#0F6B6B" }
+          ]
+        });
+      } else if (activeTab === 'testimonials') {
+        const response = await apiClient.getTestimonials();
+        setTestimonialsContent(response.data || {
+          sectionSubtitle: "Testimonials",
+          sectionTitle: "What People Say",
+          sectionDescription: "Hear from our volunteers and community members about their experiences",
+          testimonials: [
+            { quote: "Volunteering with Vishwasi Sangati has been the most rewarding experience of my life.", name: "Priya Sharma", role: "Volunteer since 2023", image: "", rating: 5 },
+            { quote: "The education program has transformed our village.", name: "Rajesh Kumar", role: "Community Leader", image: "", rating: 5 },
+            { quote: "Being part of the healthcare initiative has allowed me to contribute my medical skills.", name: "Dr. Anjali Verma", role: "Medical Volunteer", image: "", rating: 5 }
+          ]
+        });
+      } else if (activeTab === 'featured-project') {
+        const response = await apiClient.getFeaturedProject();
+        setFeaturedProjectContent(response.data || {
+          sectionSubtitle: "Spotlight",
+          sectionTitle: "Featured Project",
+          sectionDescription: "Discover our flagship initiative making a tangible difference",
+          title: "Poshan Maa — Nutrition Initiative",
+          description: "Our flagship nutrition program providing balanced meals to children and mothers across rural communities.",
+          image: "",
+          stats: [
+            { icon: "MapPin", label: "6 States" },
+            { icon: "Users", label: "15,876+ Meals" },
+            { icon: "Heart", label: "194 Children in Care" }
+          ],
+          ctaText: "Support This Project"
+        });
+      } else if (activeTab === 'footer') {
+        const response = await apiClient.getFooter();
+        setFooterContent(response.data || {
+          description: "Empowering communities through dedicated service, sustainable development, and compassionate action since 2009.",
+          address: "Plot No: 193 & 194, Vishwa Vani Building Road No.2, Bhaagvan Colony, Chakripuram, ECIL - Post Hyderabad",
+          email: "vishwasisangati@gmail.com",
+          phone: "+91 98480 51358",
+          socialLinks: [
+            { platform: "Facebook", url: "#" },
+            { platform: "Twitter", url: "#" },
+            { platform: "Instagram", url: "#" },
+            { platform: "Linkedin", url: "#" }
+          ],
+          quickLinks: [
+            { label: "About Us", href: "#about" },
+            { label: "Our Mission", href: "#about" },
+            { label: "Our Team", href: "#team" },
+            { label: "Careers", href: "#careers" },
+            { label: "Blog", href: "#blog" }
+          ],
+          programs: [
+            { label: "Education", href: "#education" },
+            { label: "Healthcare", href: "#healthcare" },
+            { label: "Community Development", href: "#development" },
+            { label: "Women Empowerment", href: "#women" },
+            { label: "Skill Training", href: "#training" }
+          ],
+          donateCta: { title: "Make a Difference Today", description: "Your contribution can change lives." },
+          copyright: "© 2026 Vishwasi Sangati. All rights reserved."
+        });
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -226,6 +349,55 @@ export function AdminDashboard() {
     }
   };
 
+  // --- New section save handlers ---
+  const handleSaveNavbar = async () => {
+    if (!navbarContent) return;
+    setLoading(true);
+    const response = await apiClient.updateNavbar(navbarContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Navbar updated successfully'); }
+  };
+
+  const handleSaveVisionMission = async () => {
+    if (!visionMissionContent) return;
+    setLoading(true);
+    const response = await apiClient.updateVisionMission(visionMissionContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Vision & Mission updated successfully'); }
+  };
+
+  const handleSaveOurWork = async () => {
+    if (!ourWorkContent) return;
+    setLoading(true);
+    const response = await apiClient.updateOurWork(ourWorkContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Our Work updated successfully'); }
+  };
+
+  const handleSaveTestimonials = async () => {
+    if (!testimonialsContent) return;
+    setLoading(true);
+    const response = await apiClient.updateTestimonials(testimonialsContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Testimonials updated successfully'); }
+  };
+
+  const handleSaveFeaturedProject = async () => {
+    if (!featuredProjectContent) return;
+    setLoading(true);
+    const response = await apiClient.updateFeaturedProject(featuredProjectContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Featured Project updated successfully'); }
+  };
+
+  const handleSaveFooter = async () => {
+    if (!footerContent) return;
+    setLoading(true);
+    const response = await apiClient.updateFooter(footerContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Footer updated successfully'); }
+  };
+
   const handleStoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -284,6 +456,12 @@ export function AdminDashboard() {
   const tabs = [
     { id: 'hero' as TabType, label: 'Hero Section', icon: Image },
     { id: 'about-us' as TabType, label: 'About Us', icon: FileText },
+    { id: 'navbar' as TabType, label: 'Navbar', icon: Navigation },
+    { id: 'vision-mission' as TabType, label: 'Vision & Mission', icon: Target },
+    { id: 'our-work' as TabType, label: 'Our Work', icon: Briefcase },
+    { id: 'testimonials' as TabType, label: 'Testimonials', icon: Quote },
+    { id: 'featured-project' as TabType, label: 'Featured Project', icon: StarIcon },
+    { id: 'footer' as TabType, label: 'Footer', icon: MapPin },
     { id: 'stats' as TabType, label: 'Impact Stats', icon: BarChart3 },
     { id: 'stories' as TabType, label: 'Impact Stories', icon: FileText },
     { id: 'contacts' as TabType, label: 'Contacts', icon: MessageSquare },
@@ -520,6 +698,218 @@ export function AdminDashboard() {
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                             disabled={uploadingAboutUs}
                           />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Navbar Tab */}
+                  {activeTab === 'navbar' && navbarContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Navbar Menu Items</h2>
+                        <div className="flex gap-2">
+                          <button onClick={() => setNavbarContent({ ...navbarContent, menuItems: [...(navbarContent.menuItems || []), { label: 'New Link', href: '#' }] })} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"><Plus size={20} />Add Item</button>
+                          <button onClick={handleSaveNavbar} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {(navbarContent.menuItems || []).map((item: any, index: number) => (
+                          <div key={index} className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg">
+                            <div className="flex-1 grid grid-cols-2 gap-3">
+                              <input type="text" value={item.label} onChange={(e) => { const items = [...navbarContent.menuItems]; items[index].label = e.target.value; setNavbarContent({ ...navbarContent, menuItems: items }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Label" />
+                              <input type="text" value={item.href} onChange={(e) => { const items = [...navbarContent.menuItems]; items[index].href = e.target.value; setNavbarContent({ ...navbarContent, menuItems: items }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Link (e.g. /#about)" />
+                            </div>
+                            <button onClick={() => { const items = navbarContent.menuItems.filter((_: any, i: number) => i !== index); setNavbarContent({ ...navbarContent, menuItems: items }); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vision & Mission Tab */}
+                  {activeTab === 'vision-mission' && visionMissionContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Vision & Mission</h2>
+                        <button onClick={handleSaveVisionMission} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                      </div>
+                      <div className="space-y-4">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label><input type="text" value={visionMissionContent.sectionSubtitle || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, sectionSubtitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label><input type="text" value={visionMissionContent.sectionTitle || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Description</label><input type="text" value={visionMissionContent.sectionDescription || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, sectionDescription: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Vision Text</label><textarea value={visionMissionContent.visionText || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, visionText: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Mission Paragraph 1</label><textarea value={visionMissionContent.missionParagraph1 || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, missionParagraph1: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Mission Paragraph 2</label><textarea value={visionMissionContent.missionParagraph2 || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, missionParagraph2: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Mission Highlight</label><textarea value={visionMissionContent.missionHighlight || ''} onChange={(e) => setVisionMissionContent({ ...visionMissionContent, missionHighlight: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0F6B6B]" /></div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Core Values</label><button onClick={() => setVisionMissionContent({ ...visionMissionContent, coreValues: [...(visionMissionContent.coreValues || []), { label: 'New Value', emoji: '✨' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add Value</button></div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {(visionMissionContent.coreValues || []).map((val: any, i: number) => (
+                              <div key={i} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg">
+                                <input type="text" value={val.emoji} onChange={(e) => { const vals = [...visionMissionContent.coreValues]; vals[i].emoji = e.target.value; setVisionMissionContent({ ...visionMissionContent, coreValues: vals }); }} className="w-12 px-2 py-1 border border-gray-300 rounded text-center" />
+                                <input type="text" value={val.label} onChange={(e) => { const vals = [...visionMissionContent.coreValues]; vals[i].label = e.target.value; setVisionMissionContent({ ...visionMissionContent, coreValues: vals }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" />
+                                <button onClick={() => { const vals = visionMissionContent.coreValues.filter((_: any, idx: number) => idx !== i); setVisionMissionContent({ ...visionMissionContent, coreValues: vals }); }} className="text-red-500 hover:bg-red-50 p-1 rounded"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Our Work Tab */}
+                  {activeTab === 'our-work' && ourWorkContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Our Work / Programs</h2>
+                        <div className="flex gap-2">
+                          <button onClick={() => setOurWorkContent({ ...ourWorkContent, programs: [...(ourWorkContent.programs || []), { title: 'New Program', description: 'Description', image: '', icon: 'Heart', stats: '0', color: '#0F6B6B' }] })} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"><Plus size={20} />Add Program</button>
+                          <button onClick={handleSaveOurWork} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label><input type="text" value={ourWorkContent.sectionSubtitle || ''} onChange={(e) => setOurWorkContent({ ...ourWorkContent, sectionSubtitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label><input type="text" value={ourWorkContent.sectionTitle || ''} onChange={(e) => setOurWorkContent({ ...ourWorkContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Description</label><input type="text" value={ourWorkContent.sectionDescription || ''} onChange={(e) => setOurWorkContent({ ...ourWorkContent, sectionDescription: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                      </div>
+                      <div className="space-y-4">
+                        {(ourWorkContent.programs || []).map((prog: any, index: number) => (
+                          <div key={index} className="p-4 border border-gray-200 rounded-lg space-y-3 relative">
+                            <button onClick={() => { const progs = ourWorkContent.programs.filter((_: any, i: number) => i !== index); setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                            <input type="text" value={prog.title} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].title = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold" placeholder="Program Title" />
+                            <textarea value={prog.description} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].description = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Description" />
+                            <div className="grid grid-cols-3 gap-2">
+                              <input type="text" value={prog.stats} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].stats = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Stats (e.g. 610+ Children)" />
+                              <input type="text" value={prog.image} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].image = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Image URL" />
+                              <select value={prog.icon} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].icon = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <option value="GraduationCap">Graduation</option><option value="Stethoscope">Stethoscope</option><option value="Users">Users</option><option value="Heart">Heart</option><option value="BookOpen">Book</option><option value="Home">Home</option>
+                              </select>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Testimonials Tab */}
+                  {activeTab === 'testimonials' && testimonialsContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Testimonials</h2>
+                        <div className="flex gap-2">
+                          <button onClick={() => setTestimonialsContent({ ...testimonialsContent, testimonials: [...(testimonialsContent.testimonials || []), { quote: 'New quote', name: 'Name', role: 'Role', image: '', rating: 5 }] })} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"><Plus size={20} />Add Testimonial</button>
+                          <button onClick={handleSaveTestimonials} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label><input type="text" value={testimonialsContent.sectionSubtitle || ''} onChange={(e) => setTestimonialsContent({ ...testimonialsContent, sectionSubtitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label><input type="text" value={testimonialsContent.sectionTitle || ''} onChange={(e) => setTestimonialsContent({ ...testimonialsContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Description</label><input type="text" value={testimonialsContent.sectionDescription || ''} onChange={(e) => setTestimonialsContent({ ...testimonialsContent, sectionDescription: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                      </div>
+                      <div className="space-y-4">
+                        {(testimonialsContent.testimonials || []).map((t: any, index: number) => (
+                          <div key={index} className="p-4 border border-gray-200 rounded-lg space-y-3 relative">
+                            <button onClick={() => { const items = testimonialsContent.testimonials.filter((_: any, i: number) => i !== index); setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                            <div className="grid grid-cols-2 gap-2">
+                              <input type="text" value={t.name} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].name = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Name" />
+                              <input type="text" value={t.role} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].role = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Role" />
+                            </div>
+                            <textarea value={t.quote} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].quote = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Quote" />
+                            <input type="text" value={t.image} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].image = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Image URL" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Featured Project Tab */}
+                  {activeTab === 'featured-project' && featuredProjectContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Featured Project</h2>
+                        <button onClick={handleSaveFeaturedProject} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                      </div>
+                      <div className="space-y-4">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label><input type="text" value={featuredProjectContent.sectionSubtitle || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, sectionSubtitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label><input type="text" value={featuredProjectContent.sectionTitle || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Project Title</label><input type="text" value={featuredProjectContent.title || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, title: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Description</label><textarea value={featuredProjectContent.description || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, description: e.target.value })} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label><input type="text" value={featuredProjectContent.image || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, image: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">CTA Button Text</label><input type="text" value={featuredProjectContent.ctaText || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, ctaText: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Stats Badges</label><button onClick={() => setFeaturedProjectContent({ ...featuredProjectContent, stats: [...(featuredProjectContent.stats || []), { icon: 'Heart', label: 'New Stat' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add Stat</button></div>
+                          <div className="space-y-2">
+                            {(featuredProjectContent.stats || []).map((stat: any, i: number) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <select value={stat.icon} onChange={(e) => { const s = [...featuredProjectContent.stats]; s[i].icon = e.target.value; setFeaturedProjectContent({ ...featuredProjectContent, stats: s }); }} className="px-2 py-1 border border-gray-300 rounded text-sm"><option value="MapPin">MapPin</option><option value="Users">Users</option><option value="Heart">Heart</option></select>
+                                <input type="text" value={stat.label} onChange={(e) => { const s = [...featuredProjectContent.stats]; s[i].label = e.target.value; setFeaturedProjectContent({ ...featuredProjectContent, stats: s }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" />
+                                <button onClick={() => { const s = featuredProjectContent.stats.filter((_: any, idx: number) => idx !== i); setFeaturedProjectContent({ ...featuredProjectContent, stats: s }); }} className="text-red-500 p-1"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer Tab */}
+                  {activeTab === 'footer' && footerContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Footer Content</h2>
+                        <button onClick={handleSaveFooter} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                      </div>
+                      <div className="space-y-4">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Description</label><textarea value={footerContent.description || ''} onChange={(e) => setFooterContent({ ...footerContent, description: e.target.value })} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Address</label><textarea value={footerContent.address || ''} onChange={(e) => setFooterContent({ ...footerContent, address: e.target.value })} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div><label className="block text-sm font-medium text-gray-700 mb-2">Email</label><input type="email" value={footerContent.email || ''} onChange={(e) => setFooterContent({ ...footerContent, email: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                          <div><label className="block text-sm font-medium text-gray-700 mb-2">Phone</label><input type="text" value={footerContent.phone || ''} onChange={(e) => setFooterContent({ ...footerContent, phone: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        </div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Copyright Text</label><input type="text" value={footerContent.copyright || ''} onChange={(e) => setFooterContent({ ...footerContent, copyright: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Social Links</label><button onClick={() => setFooterContent({ ...footerContent, socialLinks: [...(footerContent.socialLinks || []), { platform: 'Facebook', url: '#' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add</button></div>
+                          <div className="space-y-2">
+                            {(footerContent.socialLinks || []).map((link: any, i: number) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <select value={link.platform} onChange={(e) => { const links = [...footerContent.socialLinks]; links[i].platform = e.target.value; setFooterContent({ ...footerContent, socialLinks: links }); }} className="px-2 py-1 border border-gray-300 rounded text-sm"><option>Facebook</option><option>Twitter</option><option>Instagram</option><option>Linkedin</option></select>
+                                <input type="text" value={link.url} onChange={(e) => { const links = [...footerContent.socialLinks]; links[i].url = e.target.value; setFooterContent({ ...footerContent, socialLinks: links }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="URL" />
+                                <button onClick={() => { const links = footerContent.socialLinks.filter((_: any, idx: number) => idx !== i); setFooterContent({ ...footerContent, socialLinks: links }); }} className="text-red-500 p-1"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Quick Links</label><button onClick={() => setFooterContent({ ...footerContent, quickLinks: [...(footerContent.quickLinks || []), { label: 'New Link', href: '#' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add</button></div>
+                          <div className="space-y-2">
+                            {(footerContent.quickLinks || []).map((link: any, i: number) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <input type="text" value={link.label} onChange={(e) => { const links = [...footerContent.quickLinks]; links[i].label = e.target.value; setFooterContent({ ...footerContent, quickLinks: links }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Label" />
+                                <input type="text" value={link.href} onChange={(e) => { const links = [...footerContent.quickLinks]; links[i].href = e.target.value; setFooterContent({ ...footerContent, quickLinks: links }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Link" />
+                                <button onClick={() => { const links = footerContent.quickLinks.filter((_: any, idx: number) => idx !== i); setFooterContent({ ...footerContent, quickLinks: links }); }} className="text-red-500 p-1"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Program Links</label><button onClick={() => setFooterContent({ ...footerContent, programs: [...(footerContent.programs || []), { label: 'New Program', href: '#' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add</button></div>
+                          <div className="space-y-2">
+                            {(footerContent.programs || []).map((prog: any, i: number) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <input type="text" value={prog.label} onChange={(e) => { const progs = [...footerContent.programs]; progs[i].label = e.target.value; setFooterContent({ ...footerContent, programs: progs }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Label" />
+                                <input type="text" value={prog.href} onChange={(e) => { const progs = [...footerContent.programs]; progs[i].href = e.target.value; setFooterContent({ ...footerContent, programs: progs }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Link" />
+                                <button onClick={() => { const progs = footerContent.programs.filter((_: any, idx: number) => idx !== i); setFooterContent({ ...footerContent, programs: progs }); }} className="text-red-500 p-1"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="border-t pt-4">
+                          <h3 className="text-sm font-medium text-gray-700 mb-3">Donate CTA Section</h3>
+                          <div className="space-y-3">
+                            <div><label className="block text-xs text-gray-500 mb-1">CTA Title</label><input type="text" value={footerContent.donateCta?.title || ''} onChange={(e) => setFooterContent({ ...footerContent, donateCta: { ...footerContent.donateCta, title: e.target.value } })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                            <div><label className="block text-xs text-gray-500 mb-1">CTA Description</label><textarea value={footerContent.donateCta?.description || ''} onChange={(e) => setFooterContent({ ...footerContent, donateCta: { ...footerContent.donateCta, description: e.target.value } })} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                          </div>
                         </div>
                       </div>
                     </div>

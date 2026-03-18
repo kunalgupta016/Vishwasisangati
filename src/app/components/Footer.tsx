@@ -1,14 +1,63 @@
 import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin, ArrowRight, Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiClient } from "../../utils/api/client";
 import { toast } from "sonner";
 import { ContactFormDialog } from "./ContactFormDialog";
 import logo from "../../assets/logo.png";
 
+const socialIconMap: Record<string, any> = { Facebook, Twitter, Instagram, Linkedin };
+
+const defaultFooter = {
+  description: "Empowering communities through dedicated service, sustainable development, and compassionate action since 2009.",
+  address: "Plot No: 193 & 194, Vishwa Vani Building Road No.2, Bhaagvan Colony, Chakripuram, ECIL - Post Hyderabad",
+  email: "vishwasisangati@gmail.com",
+  phone: "+91 98480 51358",
+  socialLinks: [
+    { platform: "Facebook", url: "#" },
+    { platform: "Twitter", url: "#" },
+    { platform: "Instagram", url: "#" },
+    { platform: "Linkedin", url: "#" }
+  ],
+  quickLinks: [
+    { label: "About Us", href: "#about" },
+    { label: "Our Mission", href: "#about" },
+    { label: "Our Team", href: "#team" },
+    { label: "Careers", href: "#careers" },
+    { label: "Blog", href: "#blog" }
+  ],
+  programs: [
+    { label: "Education", href: "#education" },
+    { label: "Healthcare", href: "#healthcare" },
+    { label: "Community Development", href: "#development" },
+    { label: "Women Empowerment", href: "#women" },
+    { label: "Skill Training", href: "#training" }
+  ],
+  donateCta: {
+    title: "Make a Difference Today",
+    description: "Your contribution can change lives. Join us in our mission to build stronger, healthier communities."
+  },
+  copyright: "© 2026 Vishwasi Sangati. All rights reserved."
+};
+
 export function Footer() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [content, setContent] = useState(defaultFooter);
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const response = await apiClient.getFooter();
+        if (response.data) {
+          setContent({ ...defaultFooter, ...(response.data as any) });
+        }
+      } catch (error) {
+        console.error("Failed to load footer content:", error);
+      }
+    }
+    loadContent();
+  }, []);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,26 +80,9 @@ export function Footer() {
   };
 
   const handleDonateClick = () => {
-    // In a real application, this would open a payment gateway
     setIsContactFormOpen(true);
     toast.info('Contact us to learn more about donation options');
   };
-
-  const quickLinks = [
-    { label: "About Us", href: "#about" },
-    { label: "Our Mission", href: "#about" },
-    { label: "Our Team", href: "#team" },
-    { label: "Careers", href: "#careers" },
-    { label: "Blog", href: "#blog" }
-  ];
-
-  const programs = [
-    { label: "Education", href: "#education" },
-    { label: "Healthcare", href: "#healthcare" },
-    { label: "Community Development", href: "#development" },
-    { label: "Women Empowerment", href: "#women" },
-    { label: "Skill Training", href: "#training" }
-  ];
 
   return (
     <>
@@ -97,23 +129,21 @@ export function Footer() {
                   <img src={logo} alt="Vishwasi Sangati" className="h-16 w-auto object-contain brightness-0 invert" />
                 </div>
                 <p className="text-white/80 leading-relaxed mb-6">
-                  Empowering communities through dedicated service, sustainable development, and compassionate action since 2009.
+                  {content.description}
                 </p>
                 <div className="flex gap-3">
-                  {[
-                    { icon: Facebook, href: "#" },
-                    { icon: Twitter, href: "#" },
-                    { icon: Instagram, href: "#" },
-                    { icon: Linkedin, href: "#" }
-                  ].map((social, index) => (
-                    <a
-                      key={index}
-                      href={social.href}
-                      className="p-3 bg-white/10 hover:bg-[#E87D3E] rounded-full transition-all duration-300 hover:scale-110"
-                    >
-                      <social.icon size={20} />
-                    </a>
-                  ))}
+                  {content.socialLinks.map((social: any, index: number) => {
+                    const SocialIcon = socialIconMap[social.platform] || Facebook;
+                    return (
+                      <a
+                        key={index}
+                        href={social.url}
+                        className="p-3 bg-white/10 hover:bg-[#E87D3E] rounded-full transition-all duration-300 hover:scale-110"
+                      >
+                        <SocialIcon size={20} />
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -124,7 +154,7 @@ export function Footer() {
                   Quick Links
                 </h4>
                 <ul className="space-y-3">
-                  {quickLinks.map((link, index) => (
+                  {content.quickLinks.map((link: any, index: number) => (
                     <li key={index}>
                       <a
                         href={link.href}
@@ -144,7 +174,7 @@ export function Footer() {
                   Our Programs
                 </h4>
                 <ul className="space-y-3">
-                  {programs.map((program, index) => (
+                  {content.programs.map((program: any, index: number) => (
                     <li key={index}>
                       <a
                         href={program.href}
@@ -167,26 +197,25 @@ export function Footer() {
                   <li className="flex items-start gap-3">
                     <MapPin size={20} className="text-[#E87D3E] mt-1 flex-shrink-0" />
                     <span className="text-white/80 text-sm leading-relaxed">
-                      Plot No: 193 & 194, Vishwa Vani Building Road No.2, 
-                      Bhaagvan Colony, Chakripuram, ECIL - Post Hyderabad
+                      {content.address}
                     </span>
                   </li>
                   <li className="flex items-center gap-3">
                     <Mail size={20} className="text-[#E87D3E] flex-shrink-0" />
                     <a
-                      href="mailto:vishwasisangati@gmail.com"
+                      href={`mailto:${content.email}`}
                       className="text-white/80 hover:text-white transition-colors"
                     >
-                      vishwasisangati@gmail.com
+                      {content.email}
                     </a>
                   </li>
                   <li className="flex items-center gap-3">
                     <Phone size={20} className="text-[#E87D3E] flex-shrink-0" />
                     <a
-                      href="tel:+919848051358"
+                      href={`tel:${content.phone?.replace(/\s/g, '')}`}
                       className="text-white/80 hover:text-white transition-colors"
                     >
-                      +91 98480 51358
+                      {content.phone}
                     </a>
                   </li>
                 </ul>
@@ -195,9 +224,9 @@ export function Footer() {
 
             {/* Donate CTA */}
             <div className="mb-12 p-8 bg-gradient-to-r from-[#E87D3E] to-[#d66d30] rounded-3xl text-center">
-              <h3 className="text-2xl font-bold mb-3">Make a Difference Today</h3>
+              <h3 className="text-2xl font-bold mb-3">{content.donateCta?.title || "Make a Difference Today"}</h3>
               <p className="text-white/90 mb-6 max-w-2xl mx-auto">
-                Your contribution can change lives. Join us in our mission to build stronger, healthier communities.
+                {content.donateCta?.description || "Your contribution can change lives. Join us in our mission to build stronger, healthier communities."}
               </p>
               <button 
                 onClick={handleDonateClick}
@@ -212,7 +241,7 @@ export function Footer() {
             <div className="pt-8 border-t border-white/10">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
                 <p className="text-white/70">
-                  © 2026 Vishwasi Sangati. All rights reserved.
+                  {content.copyright}
                 </p>
                 <div className="flex gap-6">
                   <a href="#" className="text-white/70 hover:text-white transition-colors">

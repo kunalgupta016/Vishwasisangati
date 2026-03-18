@@ -2,9 +2,22 @@ import { Menu, X, Heart, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import logo from "../../assets/logo.png";
+import { apiClient } from "../../utils/api/client";
+
+const defaultNavbar = {
+  menuItems: [
+    { label: "Home", href: "/#home" },
+    { label: "About Us", href: "/#about" },
+    { label: "Core Initiatives", href: "/#initiatives" },
+    { label: "Impact Stories", href: "/#stories" },
+    { label: "Contact", href: "/#contact" }
+  ]
+};
+
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [content, setContent] = useState(defaultNavbar);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,13 +32,19 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const menuItems = [
-    { label: "Home", href: "/#home" },
-    { label: "About Us", href: "/about" },
-    { label: "Core Initiatives", href: "/#initiatives" },
-    { label: "Impact Stories", href: "/#stories" },
-    { label: "Contact", href: "/#contact" }
-  ];
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const response = await apiClient.getNavbar();
+        if (response.data) {
+          setContent({ ...defaultNavbar, ...(response.data as any) });
+        }
+      } catch (error) {
+        console.error("Failed to load navbar content:", error);
+      }
+    }
+    loadContent();
+  }, []);
 
   const handleDonateClick = () => {
     // Scroll to contact section or open donation modal
@@ -58,7 +77,7 @@ export function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-1">
-            {menuItems.map((item) => (
+            {content.menuItems.map((item: any) => (
               <a
                 key={item.label}
                 href={item.href}
@@ -109,7 +128,7 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="lg:hidden py-6 space-y-2 bg-white rounded-2xl mt-2 shadow-xl border border-gray-100">
-            {menuItems.map((item) => (
+            {content.menuItems.map((item: any) => (
               <a
                 key={item.label}
                 href={item.href}

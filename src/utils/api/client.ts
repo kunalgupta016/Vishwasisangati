@@ -155,6 +155,78 @@ class ApiClient {
     });
   }
 
+  // Navbar content endpoints
+  async getNavbar() {
+    return this.request('/content/navbar');
+  }
+
+  async updateNavbar(content: any) {
+    return this.request('/content/navbar', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
+  // Vision & Mission content endpoints
+  async getVisionMission() {
+    return this.request('/content/vision-mission');
+  }
+
+  async updateVisionMission(content: any) {
+    return this.request('/content/vision-mission', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
+  // Our Work content endpoints
+  async getOurWork() {
+    return this.request('/content/our-work');
+  }
+
+  async updateOurWork(content: any) {
+    return this.request('/content/our-work', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
+  // Testimonials content endpoints
+  async getTestimonials() {
+    return this.request('/content/testimonials');
+  }
+
+  async updateTestimonials(content: any) {
+    return this.request('/content/testimonials', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
+  // Featured Project content endpoints
+  async getFeaturedProject() {
+    return this.request('/content/featured-project');
+  }
+
+  async updateFeaturedProject(content: any) {
+    return this.request('/content/featured-project', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
+  // Footer content endpoints
+  async getFooter() {
+    return this.request('/content/footer');
+  }
+
+  async updateFooter(content: any) {
+    return this.request('/content/footer', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
   // Media endpoints
   async uploadMedia(file: File) {
     // For a real implementation, you'd send FormData to an upload endpoint
@@ -170,3 +242,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+

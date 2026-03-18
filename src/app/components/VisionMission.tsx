@@ -1,6 +1,40 @@
 import { Target, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
+import { apiClient } from "../../utils/api/client";
+
+const defaultContent = {
+  sectionSubtitle: "Who We Are",
+  sectionTitle: "Our Vision & Mission",
+  sectionDescription: "Driven by compassion, guided by purpose",
+  visionText: "A resilient India where every child, woman, and family lives with dignity, opportunity, and hope for a brighter tomorrow.",
+  missionParagraph1: "To alleviate poverty and uplift vulnerable rural communities by providing access to education, healthcare, and sustainable livelihoods.",
+  missionParagraph2: "Through women's empowerment, youth engagement, and community-led initiatives, we nurture people-driven change that is owned, sustained, and carried forward by the communities themselves.",
+  missionHighlight: "From schools and childcare centers to medical camps, sewing workshops, and nutrition campaigns—we equip every child, woman, and family with the tools to live with dignity.",
+  coreValues: [
+    { label: "Compassion", emoji: "❤️" },
+    { label: "Integrity", emoji: "🤝" },
+    { label: "Empowerment", emoji: "💪" },
+    { label: "Sustainability", emoji: "🌱" }
+  ]
+};
 
 export function VisionMission() {
+  const [content, setContent] = useState(defaultContent);
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const response = await apiClient.getVisionMission();
+        if (response.data) {
+          setContent({ ...defaultContent, ...(response.data as any) });
+        }
+      } catch (error) {
+        console.error("Failed to load vision-mission content:", error);
+      }
+    }
+    loadContent();
+  }, []);
+
   return (
     <section id="about" className="py-24 bg-white relative overflow-hidden">
       {/* Decorative background */}
@@ -12,12 +46,12 @@ export function VisionMission() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="text-[#E87D3E] font-semibold mb-3 uppercase tracking-wider">Who We Are</p>
+          <p className="text-[#E87D3E] font-semibold mb-3 uppercase tracking-wider">{content.sectionSubtitle}</p>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Our Vision & Mission
+            {content.sectionTitle}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Driven by compassion, guided by purpose
+            {content.sectionDescription}
           </p>
         </div>
 
@@ -31,8 +65,7 @@ export function VisionMission() {
               </div>
               <h3 className="text-3xl font-bold mb-6">Our Vision</h3>
               <p className="text-lg text-white/90 leading-relaxed">
-                A resilient India where every child, woman, and family lives with dignity, 
-                opportunity, and hope for a brighter tomorrow.
+                {content.visionText}
               </p>
               {/* Decorative line */}
               <div className="mt-6 h-1 w-20 bg-[#E87D3E] rounded-full group-hover:w-32 transition-all duration-300"></div>
@@ -49,18 +82,13 @@ export function VisionMission() {
               <h3 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h3>
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <p className="text-lg">
-                  To alleviate poverty and uplift vulnerable rural communities by providing 
-                  access to education, healthcare, and sustainable livelihoods.
+                  {content.missionParagraph1}
                 </p>
                 <p className="text-lg">
-                  Through women's empowerment, youth engagement, and community-led initiatives, 
-                  we nurture people-driven change that is owned, sustained, and carried 
-                  forward by the communities themselves.
+                  {content.missionParagraph2}
                 </p>
                 <p className="text-lg font-medium text-[#0F6B6B]">
-                  From schools and childcare centers to medical camps, sewing workshops, 
-                  and nutrition campaigns—we equip every child, woman, and family with the 
-                  tools to live with dignity.
+                  {content.missionHighlight}
                 </p>
               </div>
               {/* Decorative line */}
@@ -71,12 +99,7 @@ export function VisionMission() {
 
         {/* Core Values */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { label: "Compassion", emoji: "❤️" },
-            { label: "Integrity", emoji: "🤝" },
-            { label: "Empowerment", emoji: "💪" },
-            { label: "Sustainability", emoji: "🌱" }
-          ].map((value, index) => (
+          {content.coreValues.map((value: any, index: number) => (
             <div
               key={index}
               className="text-center p-6 bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-100 hover:border-[#0F6B6B] transition-all duration-300 hover:shadow-lg"

@@ -1,10 +1,36 @@
 import { ArrowRight, Heart, Users, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ContactFormDialog } from "./ContactFormDialog";
 import { toast } from "sonner";
+import { apiClient } from "../../utils/api/client";
+
+const defaultHero = {
+  badge: "Transforming Lives Since 2009",
+  title: "Serving Hope To",
+  highlightText: "Rural Communities",
+  subtitle: "of India",
+  description: "Empowering vulnerable communities through education, healthcare, and sustainable development. Together, we're building a brighter future.",
+  mainImage: "https://images.unsplash.com/photo-1759738098462-90ffac98c554?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBydXJhbCUyMGRldmVsb3BtZW50JTIwY29tbXVuaXR5fGVufDF8fHx8MTc3MjcxMjI5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+  backgroundImage: "https://images.unsplash.com/photo-1761365361648-3968a6b588a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYXBweSUyMEluZGlhbiUyMGNoaWxkcmVuJTIwcGxheWluZyUyMHNtaWxpbmd8ZW58MXx8fHwxNzcyNzEyMjk2fDA&ixlib=rb-4.1.0&q=80&w=1080"
+};
 
 export function Hero() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [content, setContent] = useState(defaultHero);
+
+  useEffect(() => {
+    async function loadHeroContent() {
+      try {
+        const response = await apiClient.getHeroContent();
+        if (response.data) {
+          setContent({ ...defaultHero, ...(response.data as any) });
+        }
+      } catch (error) {
+        console.error("Failed to load hero content:", error);
+      }
+    }
+    loadHeroContent();
+  }, []);
 
   const handleExploreWork = () => {
     const storiesSection = document.getElementById('stories');
@@ -32,7 +58,7 @@ export function Hero() {
         {/* Background image with overlay */}
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1761365361648-3968a6b588a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYXBweSUyMEluZGlhbiUyMGNoaWxkcmVuJTIwcGxheWluZyUyMHNtaWxpbmd8ZW58MXx8fHwxNzcyNzEyMjk2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+            src={content.backgroundImage}
             alt="Happy children"
             className="w-full h-full object-cover opacity-20"
           />
@@ -47,19 +73,19 @@ export function Hero() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white text-sm">
                 <div className="w-2 h-2 bg-[#E87D3E] rounded-full animate-pulse"></div>
-                <span>Transforming Lives Since 2009</span>
+                <span>{content.badge}</span>
               </div>
 
               {/* Heading */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
-                Serving Hope To
-                <span className="block text-[#E87D3E] mt-2">Rural Communities</span>
-                <span className="block mt-2">of India</span>
+                {content.title}
+                <span className="block text-[#E87D3E] mt-2">{content.highlightText}</span>
+                <span className="block mt-2">{content.subtitle || "of India"}</span>
               </h1>
 
               {/* Description */}
               <p className="text-xl text-white/90 leading-relaxed max-w-xl">
-                Empowering vulnerable communities through education, healthcare, and sustainable development. Together, we're building a brighter future.
+                {content.description}
               </p>
 
               {/* CTA Buttons */}
@@ -116,7 +142,7 @@ export function Hero() {
             <div className="relative hidden lg:block">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-8 border-white/10 backdrop-blur-sm">
                 <img
-                  src="https://images.unsplash.com/photo-1759738098462-90ffac98c554?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBydXJhbCUyMGRldmVsb3BtZW50JTIwY29tbXVuaXR5fGVufDF8fHx8MTc3MjcxMjI5N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                  src={content.mainImage}
                   alt="Community development"
                   className="w-full h-[600px] object-cover"
                 />
