@@ -227,6 +227,18 @@ class ApiClient {
     });
   }
 
+  // Logo content endpoints
+  async getLogo() {
+    return this.request('/content/logo');
+  }
+
+  async updateLogo(content: any) {
+    return this.request('/content/logo', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
   // Media endpoints
   async uploadMedia(file: File) {
     // For a real implementation, you'd send FormData to an upload endpoint

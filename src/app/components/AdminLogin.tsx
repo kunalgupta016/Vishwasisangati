@@ -1,17 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-import logo from "../../assets/logo.png";
+import defaultLogo from "../../assets/logo.png";
+import { apiClient } from "../../utils/api/client";
 
 export function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(defaultLogo);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadLogo() {
+      try {
+        const response = await apiClient.getLogo();
+        if ((response.data as any)?.url) {
+          setLogoUrl((response.data as any).url);
+        }
+      } catch (error) {
+        console.error("Failed to load logo:", error);
+      }
+    }
+    loadLogo();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +67,7 @@ export function AdminLogin() {
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <img src={logo} alt="Vishwasi Sangati Logo" className="h-20 w-auto object-contain brightness-0 opacity-90" />
+              <img src={logoUrl} alt="Vishwasi Sangati Logo" className="h-20 w-auto object-contain brightness-0 opacity-90" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
             <p className="text-gray-600">Sign in to manage your website</p>

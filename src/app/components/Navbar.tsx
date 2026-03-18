@@ -1,7 +1,7 @@
 import { Menu, X, Heart, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import logo from "../../assets/logo.png";
+import defaultLogo from "../../assets/logo.png";
 import { apiClient } from "../../utils/api/client";
 
 const defaultNavbar = {
@@ -18,6 +18,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [content, setContent] = useState(defaultNavbar);
+  const [logoUrl, setLogoUrl] = useState(defaultLogo);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,9 +36,16 @@ export function Navbar() {
   useEffect(() => {
     async function loadContent() {
       try {
-        const response = await apiClient.getNavbar();
-        if (response.data) {
-          setContent({ ...defaultNavbar, ...(response.data as any) });
+        const [navRes, logoRes] = await Promise.all([
+          apiClient.getNavbar(),
+          apiClient.getLogo()
+        ]);
+        
+        if (navRes.data) {
+          setContent({ ...defaultNavbar, ...(navRes.data as any) });
+        }
+        if ((logoRes.data as any)?.url) {
+          setLogoUrl((logoRes.data as any).url);
         }
       } catch (error) {
         console.error("Failed to load navbar content:", error);
@@ -68,7 +76,7 @@ export function Navbar() {
           <a href="/" className="flex-shrink-0 group">
             <div className="transition-all duration-300">
               <img 
-                src={logo} 
+                src={logoUrl} 
                 alt="Vishwasi Sangati Logo" 
                 className={`h-16 w-auto object-contain transition-all duration-300 ${!scrolled && isHomePage ? 'brightness-0 invert' : 'brightness-0 opacity-90'}`}
               />

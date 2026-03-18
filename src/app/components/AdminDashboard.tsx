@@ -26,7 +26,7 @@ import { apiClient } from '../../utils/api/client';
 import { toast } from 'sonner';
 import logo from "../../assets/logo.png";
 
-type TabType = 'hero' | 'about-us' | 'navbar' | 'vision-mission' | 'our-work' | 'testimonials' | 'featured-project' | 'footer' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins';
+type TabType = 'hero' | 'about-us' | 'navbar' | 'vision-mission' | 'our-work' | 'testimonials' | 'featured-project' | 'footer' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins' | 'logo';
 
 export function AdminDashboard() {
   const { user, signOut } = useAuth();
@@ -77,6 +77,10 @@ export function AdminDashboard() {
 
   // Footer state
   const [footerContent, setFooterContent] = useState<any>(null);
+
+  // Logo state
+  const [logoContent, setLogoContent] = useState<any>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -233,6 +237,9 @@ export function AdminDashboard() {
           donateCta: { title: "Make a Difference Today", description: "Your contribution can change lives." },
           copyright: "© 2026 Vishwasi Sangati. All rights reserved."
         });
+      } else if (activeTab === 'logo') {
+        const response = await apiClient.getLogo();
+        setLogoContent(response.data || { url: "/src/assets/logo.png" });
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -398,6 +405,30 @@ export function AdminDashboard() {
     if (response.error) { toast.error(response.error); } else { toast.success('Footer updated successfully'); }
   };
 
+  const handleLogoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingLogo(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setLogoContent({ ...logoContent, url: response.url });
+      toast.success('Logo uploaded successfully');
+    }
+  };
+
+  const handleSaveLogo = async () => {
+    if (!logoContent) return;
+    setLoading(true);
+    const response = await apiClient.updateLogo(logoContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Logo updated successfully'); }
+  };
+
   const handleStoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -467,6 +498,7 @@ export function AdminDashboard() {
     { id: 'contacts' as TabType, label: 'Contacts', icon: MessageSquare },
     { id: 'subscribers' as TabType, label: 'Subscribers', icon: Mail },
     { id: 'admins' as TabType, label: 'Admins', icon: UserPlus },
+    { id: 'logo' as TabType, label: 'Site Logo', icon: Image },
   ];
 
   return (
@@ -476,7 +508,7 @@ export function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="Logo" className="h-10 w-auto object-contain brightness-0 opacity-90" />
+              <img src={logoContent?.url || logo} alt="Logo" className="h-10 w-auto object-contain brightness-0 opacity-90" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
                 <p className="text-sm text-gray-600">Vishwasi Sangati NGO</p>
@@ -1328,6 +1360,47 @@ export function AdminDashboard() {
                           </table>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Logo Tab */}
+                  {activeTab === 'logo' && logoContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Site Logo Configuration</h2>
+                        <button
+                          onClick={handleSaveLogo}
+                          className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"
+                        >
+                          <Save size={20} />
+                          Save Changes
+                        </button>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="p-6 border border-gray-200 rounded-lg bg-gray-50 flex flex-col items-center justify-center gap-4">
+                          <label className="block text-sm font-medium text-gray-700">Current LogoPreview</label>
+                          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-center justify-center w-full max-w-md h-32">
+                            {logoContent.url ? (
+                              <img src={logoContent.url} alt="Site Logo" className="max-h-20 object-contain" />
+                            ) : (
+                              <span className="text-gray-400">No logo uploaded</span>
+                            )}
+                          </div>
+                          
+                          <div className="w-full max-w-md">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Upload New Logo</label>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleLogoImageUpload}
+                              disabled={uploadingLogo}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50"
+                            />
+                            {uploadingLogo && <p className="text-sm text-[#0F6B6B] mt-2 flex items-center gap-2"><div className="w-4 h-4 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div> Uploading...</p>}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </>

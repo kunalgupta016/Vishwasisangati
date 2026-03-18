@@ -400,4 +400,31 @@ router.put('/footer', verifyToken, async (req, res) => {
   }
 });
 
+// --- Logo ---
+const defaultLogoContent = {
+  url: "/src/assets/logo.png"
+};
+
+router.get('/logo', async (req, res) => {
+  try {
+    const content = await Content.findOne({ key: 'logo' });
+    res.json({ data: content ? content.value : defaultLogoContent });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch logo content' });
+  }
+});
+
+router.put('/logo', verifyToken, async (req, res) => {
+  try {
+    await Content.findOneAndUpdate(
+      { key: 'logo' },
+      { key: 'logo', value: req.body },
+      { upsert: true, new: true }
+    );
+    res.json({ message: 'Logo content updated successfully', data: req.body });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update logo content' });
+  }
+});
+
 export default router;

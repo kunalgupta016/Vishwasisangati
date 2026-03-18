@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { apiClient } from "../../utils/api/client";
 import { toast } from "sonner";
 import { ContactFormDialog } from "./ContactFormDialog";
-import logo from "../../assets/logo.png";
+import defaultLogo from "../../assets/logo.png";
 
 const socialIconMap: Record<string, any> = { Facebook, Twitter, Instagram, Linkedin };
 
@@ -44,13 +44,21 @@ export function Footer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [content, setContent] = useState(defaultFooter);
+  const [logoUrl, setLogoUrl] = useState(defaultLogo);
 
   useEffect(() => {
     async function loadContent() {
       try {
-        const response = await apiClient.getFooter();
-        if (response.data) {
-          setContent({ ...defaultFooter, ...(response.data as any) });
+        const [footerRes, logoRes] = await Promise.all([
+          apiClient.getFooter(),
+          apiClient.getLogo()
+        ]);
+        
+        if (footerRes.data) {
+          setContent({ ...defaultFooter, ...(footerRes.data as any) });
+        }
+        if ((logoRes.data as any)?.url) {
+          setLogoUrl((logoRes.data as any).url);
         }
       } catch (error) {
         console.error("Failed to load footer content:", error);
@@ -126,7 +134,7 @@ export function Footer() {
               {/* About Column */}
               <div className="lg:col-span-1">
                 <div className="mb-6">
-                  <img src={logo} alt="Vishwasi Sangati" className="h-16 w-auto object-contain brightness-0 invert" />
+                  <img src={logoUrl} alt="Vishwasi Sangati" className="h-16 w-auto object-contain brightness-0 invert" />
                 </div>
                 <p className="text-white/80 leading-relaxed mb-6">
                   {content.description}
