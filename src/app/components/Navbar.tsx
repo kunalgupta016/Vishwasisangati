@@ -45,7 +45,10 @@ export function Navbar() {
           setContent({ ...defaultNavbar, ...(navRes.data as any) });
         }
         if ((logoRes.data as any)?.url) {
-          setLogoUrl((logoRes.data as any).url);
+          const url = (logoRes.data as any).url;
+          const timestamp = (logoRes as any).updatedAt ? new Date((logoRes as any).updatedAt).getTime() : Date.now();
+          const separator = url.includes('?') ? '&' : '?';
+          setLogoUrl(`${url}${separator}t=${timestamp}`);
         }
       } catch (error) {
         console.error("Failed to load navbar content:", error);
@@ -78,7 +81,7 @@ export function Navbar() {
               <img 
                 src={logoUrl} 
                 alt="Vishwasi Sangati Logo" 
-                className={`h-16 w-auto object-contain transition-all duration-300 ${!scrolled && isHomePage ? 'brightness-0 invert' : 'brightness-0 opacity-90'}`}
+                className="h-16 w-auto object-contain transition-all duration-300"
               />
             </div>
           </a>

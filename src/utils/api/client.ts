@@ -1,4 +1,7 @@
-const API_BASE_URL = 'https://vishwasi-sangati-api.onrender.com/api'
+/// <reference types="vite/client" />
+const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const envApiUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_URL : null;
+const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : (envApiUrl || 'https://vishwasi-sangati-api.onrender.com/api');
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -241,15 +244,30 @@ class ApiClient {
 
   // Media endpoints
   async uploadMedia(file: File) {
-    // For a real implementation, you'd send FormData to an upload endpoint
-    // and return the hosted URL. Since we don't have a media storage backend 
-    // configured (like S3 or Supabase Storage), we will simulate success or
-    // return a placeholder.
-    return new Promise<{url?: string, error?: string}>((resolve) => {
-      setTimeout(() => {
-        resolve({ url: URL.createObjectURL(file) });
-      }, 1000);
-    });
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const authHeader = this.getAuthHeader();
+      const headers: Record<string, string> = {};
+      if (authHeader) headers['Authorization'] = authHeader;
+
+      const response = await fetch(`${API_BASE_URL}/upload`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Upload API Error:', data.error);
+        return { error: data.error || 'Failed to upload media' };
+      }
+      return { url: data.url };
+    } catch (error) {
+      console.error('Upload request failed:', error);
+      return { error: 'Failed to connect to server for upload' };
+    }
   }
 }
 

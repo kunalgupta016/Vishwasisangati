@@ -20,7 +20,10 @@ export function AdminLogin() {
       try {
         const response = await apiClient.getLogo();
         if ((response.data as any)?.url) {
-          setLogoUrl((response.data as any).url);
+          const url = (response.data as any).url;
+          const timestamp = (response as any).updatedAt ? new Date((response as any).updatedAt).getTime() : Date.now();
+          const separator = url.includes('?') ? '&' : '?';
+          setLogoUrl(`${url}${separator}t=${timestamp}`);
         }
       } catch (error) {
         console.error("Failed to load logo:", error);
@@ -67,7 +70,7 @@ export function AdminLogin() {
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <img src={logoUrl} alt="Vishwasi Sangati Logo" className="h-20 w-auto object-contain brightness-0 opacity-90" />
+              <img src={logoUrl} alt="Vishwasi Sangati Logo" className="h-20 w-auto object-contain" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
             <p className="text-gray-600">Sign in to manage your website</p>

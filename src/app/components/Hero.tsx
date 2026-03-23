@@ -23,7 +23,19 @@ export function Hero() {
       try {
         const response = await apiClient.getHeroContent();
         if (response.data) {
-          setContent({ ...defaultHero, ...(response.data as any) });
+          const data = { ...defaultHero, ...(response.data as any) };
+          const timestamp = (response as any).updatedAt ? new Date((response as any).updatedAt).getTime() : Date.now();
+          
+          if (data.mainImage) {
+            const separator = data.mainImage.includes('?') ? '&' : '?';
+            data.mainImage = `${data.mainImage}${separator}t=${timestamp}`;
+          }
+          if (data.backgroundImage) {
+            const separator = data.backgroundImage.includes('?') ? '&' : '?';
+            data.backgroundImage = `${data.backgroundImage}${separator}t=${timestamp}`;
+          }
+          
+          setContent(data);
         }
       } catch (error) {
         console.error("Failed to load hero content:", error);

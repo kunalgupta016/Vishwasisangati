@@ -28,7 +28,7 @@ const defaultAboutUsContent = {
 router.get('/hero', async (req, res) => {
   try {
     const content = await Content.findOne({ key: 'hero' });
-    res.json({ data: content ? content.value : defaultHeroContent });
+    res.json({ data: content ? content.value : defaultHeroContent, updatedAt: content?.updatedAt });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch hero content' });
   }
@@ -408,7 +408,7 @@ const defaultLogoContent = {
 router.get('/logo', async (req, res) => {
   try {
     const content = await Content.findOne({ key: 'logo' });
-    res.json({ data: content ? content.value : defaultLogoContent });
+    res.json({ data: content ? content.value : defaultLogoContent, updatedAt: content?.updatedAt });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch logo content' });
   }

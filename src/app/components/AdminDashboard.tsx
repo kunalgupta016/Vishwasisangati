@@ -239,7 +239,14 @@ export function AdminDashboard() {
         });
       } else if (activeTab === 'logo') {
         const response = await apiClient.getLogo();
-        setLogoContent(response.data || { url: "/src/assets/logo.png" });
+        if (response.data) {
+          const url = (response.data as any).url;
+          const timestamp = (response as any).updatedAt ? new Date((response as any).updatedAt).getTime() : Date.now();
+          const separator = url?.includes('?') ? '&' : '?';
+          setLogoContent({ ...response.data, url: url ? `${url}${separator}t=${timestamp}` : "/src/assets/logo.png" });
+        } else {
+          setLogoContent({ url: "/src/assets/logo.png" });
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -508,7 +515,7 @@ export function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={logoContent?.url || logo} alt="Logo" className="h-10 w-auto object-contain brightness-0 opacity-90" />
+              <img src={logoContent?.url || logo} alt="Logo" className="h-10 w-auto object-contain" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
                 <p className="text-sm text-gray-600">Vishwasi Sangati NGO</p>
