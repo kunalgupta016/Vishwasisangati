@@ -5,6 +5,9 @@ import { AdminDashboard } from "./components/AdminDashboard";
 import { CreateAdminAccount } from "./components/CreateAdminAccount";
 import AllStoriesPage from "./pages/AllStoriesPage";
 import AboutUsPage from "./pages/AboutUsPage";
+import TeamPage from "./pages/TeamPage";
+import InitiativeDetailPage from "./pages/InitiativeDetailPage";
+import CareersPage from "./pages/CareersPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +21,18 @@ export const router = createBrowserRouter([
   {
     path: "/stories",
     Component: AllStoriesPage,
+  },
+  {
+    path: "/team",
+    Component: TeamPage,
+  },
+  {
+    path: "/careers",
+    Component: CareersPage,
+  },
+  {
+    path: "/initiatives/:slug",
+    Component: InitiativeDetailPage,
   },
   {
     path: "/admin/login",

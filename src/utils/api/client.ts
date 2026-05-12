@@ -230,6 +230,18 @@ class ApiClient {
     });
   }
 
+  // Careers content endpoints
+  async getCareers() {
+    return this.request('/content/careers');
+  }
+
+  async updateCareers(content: any) {
+    return this.request('/content/careers', {
+      method: 'PUT',
+      body: JSON.stringify(content),
+    });
+  }
+
   // Logo content endpoints
   async getLogo() {
     return this.request('/content/logo');
@@ -269,7 +281,35 @@ class ApiClient {
       return { error: 'Failed to connect to server for upload' };
     }
   }
+
+  // Team endpoints
+  async getTeamMembers() {
+    return this.request('/team');
+  }
+
+  async getAllTeamMembers() {
+    return this.request('/team/all');
+  }
+
+  async createTeamMember(data: { name: string; position: string; photo: string; bio?: string; order?: number }) {
+    return this.request('/team', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeamMember(id: string, data: { name: string; position: string; photo: string; bio?: string; order?: number; isActive?: boolean }) {
+    return this.request(`/team/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeamMember(id: string) {
+    return this.request(`/team/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
-

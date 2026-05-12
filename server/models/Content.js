@@ -7,9 +7,8 @@ const contentSchema = new mongoose.Schema({
 });
 
 // Update timestamp on save
-contentSchema.pre('save', function (next) {
+contentSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
 
 export default mongoose.model('Content', contentSchema);

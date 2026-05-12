@@ -21,16 +21,9 @@ const defaultFooter = {
   quickLinks: [
     { label: "About Us", href: "#about" },
     { label: "Our Mission", href: "#about" },
-    { label: "Our Team", href: "#team" },
-    { label: "Careers", href: "#careers" },
+    { label: "Our Team", href: "/team" },
+    { label: "Careers", href: "/careers" },
     { label: "Blog", href: "#blog" }
-  ],
-  programs: [
-    { label: "Education", href: "#education" },
-    { label: "Healthcare", href: "#healthcare" },
-    { label: "Community Development", href: "#development" },
-    { label: "Women Empowerment", href: "#women" },
-    { label: "Skill Training", href: "#training" }
   ],
   donateCta: {
     title: "Make a Difference Today",
@@ -55,7 +48,11 @@ export function Footer() {
         ]);
         
         if (footerRes.data) {
-          setContent({ ...defaultFooter, ...(footerRes.data as any) });
+          const footerContent = { ...defaultFooter, ...(footerRes.data as any) };
+          footerContent.quickLinks = (footerContent.quickLinks || []).map((link: any) =>
+            link.label === "Careers" ? { ...link, href: "/careers" } : link
+          );
+          setContent(footerContent);
         }
         if ((logoRes.data as any)?.url) {
           setLogoUrl((logoRes.data as any).url);
@@ -130,7 +127,7 @@ export function Footer() {
         {/* Main Footer */}
         <div className="relative py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
               {/* About Column */}
               <div className="lg:col-span-1">
                 <div className="mb-6">
@@ -169,26 +166,6 @@ export function Footer() {
                         className="text-white/80 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
                       >
                         {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Programs */}
-              <div>
-                <h4 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                  <div className="w-1 h-6 bg-[#E87D3E] rounded-full"></div>
-                  Our Programs
-                </h4>
-                <ul className="space-y-3">
-                  {content.programs.map((program: any, index: number) => (
-                    <li key={index}>
-                      <a
-                        href={program.href}
-                        className="text-white/80 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
-                      >
-                        {program.label}
                       </a>
                     </li>
                   ))}

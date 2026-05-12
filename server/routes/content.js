@@ -212,7 +212,10 @@ const defaultOurWorkContent = {
       image: "https://images.unsplash.com/photo-1771765780945-c788a6ce4b33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlZHVjYXRpb24lMjBjaGlsZHJlbiUyMGxlYXJuaW5nJTIwY2xhc3Nyb29tfGVufDF8fHx8MTc3MjcxMTY1Nnww&ixlib=rb-4.1.0&q=80&w=1080",
       icon: "GraduationCap",
       stats: "610+ Children",
-      color: "#0F6B6B"
+      color: "#0F6B6B",
+      slug: "education-program",
+      fullDescription: "Our education initiative supports children through evening tuition centers, school support, and community-based learning spaces. The program focuses on foundational literacy, consistent attendance, mentoring, and helping first-generation learners continue their education with confidence.",
+      highlights: ["27 evening tuition centers", "2 educational institutions", "610+ children enrolled", "415 students supported in schools"]
     },
     {
       title: "Healthcare Initiative",
@@ -220,7 +223,10 @@ const defaultOurWorkContent = {
       image: "https://images.unsplash.com/photo-1710074213374-e68503a1b795?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWFsdGhjYXJlJTIwbWVkaWNhbCUyMGNsaW5pYyUyMEluZGlhfGVufDF8fHx8MTc3MjcxMTY1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
       icon: "Stethoscope",
       stats: "19,389 Visits",
-      color: "#E87D3E"
+      color: "#E87D3E",
+      slug: "healthcare-initiative",
+      fullDescription: "The healthcare initiative brings essential care closer to underserved communities through primary health centers, medical camps, nutrition support, and preventive health awareness. It is designed to reduce distance, cost, and uncertainty for families seeking basic care.",
+      highlights: ["10 Primary Health Centers", "Medical camps across 36 villages", "19,389 healthcare visits", "12,000+ vitamin tablets distributed"]
     },
     {
       title: "Community Development",
@@ -228,7 +234,10 @@ const defaultOurWorkContent = {
       image: "https://images.unsplash.com/photo-1769366056117-e1c3dceee209?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb21tdW5pdHklMjBkZXZlbG9wbWVudCUyMHJ1cmFsJTIwdmlsbGFnZXxlbnwxfHx8fDE3NzI3MTE2NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       icon: "Users",
       stats: "62 Communities",
-      color: "#0F6B6B"
+      color: "#0F6B6B",
+      slug: "community-development",
+      fullDescription: "Our community development work strengthens local capacity through relief and rehabilitation, women's skill training, tribal education support, and livelihood-focused programs. The goal is community-owned change that continues beyond direct intervention.",
+      highlights: ["62 communities supported", "465+ women trained", "Relief and rehabilitation programs", "Tribal education support for Chenchu children"]
     }
   ]
 };
@@ -361,15 +370,8 @@ const defaultFooterContent = {
     { label: "About Us", href: "#about" },
     { label: "Our Mission", href: "#about" },
     { label: "Our Team", href: "#team" },
-    { label: "Careers", href: "#careers" },
+    { label: "Careers", href: "/careers" },
     { label: "Blog", href: "#blog" }
-  ],
-  programs: [
-    { label: "Education", href: "#education" },
-    { label: "Healthcare", href: "#healthcare" },
-    { label: "Community Development", href: "#development" },
-    { label: "Women Empowerment", href: "#women" },
-    { label: "Skill Training", href: "#training" }
   ],
   donateCta: {
     title: "Make a Difference Today",
@@ -397,6 +399,53 @@ router.put('/footer', verifyToken, async (req, res) => {
     res.json({ message: 'Footer content updated successfully', data: req.body });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update footer content' });
+  }
+});
+
+// --- Careers ---
+const defaultCareersContent = {
+  sectionSubtitle: "Careers",
+  sectionTitle: "Join Our Team",
+  sectionDescription: "Work with Vishwasi Sangati to support education, healthcare, and community-led development across rural India.",
+  heroImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  introTitle: "Build meaningful change with us",
+  introDescription: "We welcome people who care deeply about community development, field work, operations, communications, and program delivery. Explore current openings and apply for roles where your skills can directly serve families and communities.",
+  benefits: [
+    "Purpose-driven work with community impact",
+    "Collaborative and supportive team culture",
+    "Opportunities to learn through field engagement"
+  ],
+  jobs: [
+    {
+      title: "Program Coordinator",
+      location: "Hyderabad / Field Locations",
+      type: "Full-time",
+      summary: "Coordinate education, healthcare, and community programs with local teams and partners.",
+      requirements: ["Experience in NGO or community programs", "Strong communication skills", "Willingness to travel for field work"],
+      applyEmail: "vishwasisangati@gmail.com"
+    }
+  ]
+};
+
+router.get('/careers', async (req, res) => {
+  try {
+    const content = await Content.findOne({ key: 'careers' });
+    res.json({ data: content ? content.value : defaultCareersContent });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch careers content' });
+  }
+});
+
+router.put('/careers', verifyToken, async (req, res) => {
+  try {
+    await Content.findOneAndUpdate(
+      { key: 'careers' },
+      { key: 'careers', value: req.body },
+      { upsert: true, new: true }
+    );
+    res.json({ message: 'Careers content updated successfully', data: req.body });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update careers content' });
   }
 });
 

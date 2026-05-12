@@ -26,7 +26,7 @@ import { apiClient } from '../../utils/api/client';
 import { toast } from 'sonner';
 import logo from "../../assets/logo.png";
 
-type TabType = 'hero' | 'about-us' | 'navbar' | 'vision-mission' | 'our-work' | 'testimonials' | 'featured-project' | 'footer' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins' | 'logo';
+type TabType = 'hero' | 'about-us' | 'navbar' | 'vision-mission' | 'our-work' | 'testimonials' | 'featured-project' | 'footer' | 'careers' | 'stats' | 'stories' | 'contacts' | 'subscribers' | 'admins' | 'logo' | 'team';
 
 export function AdminDashboard() {
   const { user, signOut } = useAuth();
@@ -78,9 +78,19 @@ export function AdminDashboard() {
   // Footer state
   const [footerContent, setFooterContent] = useState<any>(null);
 
+  // Careers state
+  const [careersContent, setCareersContent] = useState<any>(null);
+
   // Logo state
   const [logoContent, setLogoContent] = useState<any>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  // Team state
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [showAddTeamMember, setShowAddTeamMember] = useState(false);
+  const [editingTeamMember, setEditingTeamMember] = useState<any>(null);
+  const [newTeamMember, setNewTeamMember] = useState({ name: '', position: '', photo: '', bio: '', order: 0 });
+  const [uploadingTeamPhoto, setUploadingTeamPhoto] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -176,9 +186,9 @@ export function AdminDashboard() {
           sectionTitle: "Our Work",
           sectionDescription: "We focus on three key areas to create meaningful and lasting impact in communities",
           programs: [
-            { title: "Education Program", description: "Providing quality education through 27 evening tuition centers and 2 educational institutions.", image: "", icon: "GraduationCap", stats: "610+ Children", color: "#0F6B6B" },
-            { title: "Healthcare Initiative", description: "Delivering essential healthcare through 10 Primary Health Centers and medical camps.", image: "", icon: "Stethoscope", stats: "19,389 Visits", color: "#E87D3E" },
-            { title: "Community Development", description: "Empowering 62 communities through relief & rehabilitation and women's skill training.", image: "", icon: "Users", stats: "62 Communities", color: "#0F6B6B" }
+            { title: "Education Program", description: "Providing quality education through 27 evening tuition centers and 2 educational institutions.", image: "", icon: "GraduationCap", stats: "610+ Children", color: "#0F6B6B", slug: "education-program", fullDescription: "Detailed information about the education program.", highlights: ["27 evening tuition centers", "610+ children enrolled"] },
+            { title: "Healthcare Initiative", description: "Delivering essential healthcare through 10 Primary Health Centers and medical camps.", image: "", icon: "Stethoscope", stats: "19,389 Visits", color: "#E87D3E", slug: "healthcare-initiative", fullDescription: "Detailed information about the healthcare initiative.", highlights: ["10 Primary Health Centers", "19,389 healthcare visits"] },
+            { title: "Community Development", description: "Empowering 62 communities through relief & rehabilitation and women's skill training.", image: "", icon: "Users", stats: "62 Communities", color: "#0F6B6B", slug: "community-development", fullDescription: "Detailed information about community development programs.", highlights: ["62 communities supported", "465+ women trained"] }
           ]
         });
       } else if (activeTab === 'testimonials') {
@@ -225,19 +235,24 @@ export function AdminDashboard() {
           quickLinks: [
             { label: "About Us", href: "#about" },
             { label: "Our Mission", href: "#about" },
-            { label: "Our Team", href: "#team" },
-            { label: "Careers", href: "#careers" },
+            { label: "Our Team", href: "/team" },
+            { label: "Careers", href: "/careers" },
             { label: "Blog", href: "#blog" }
-          ],
-          programs: [
-            { label: "Education", href: "#education" },
-            { label: "Healthcare", href: "#healthcare" },
-            { label: "Community Development", href: "#development" },
-            { label: "Women Empowerment", href: "#women" },
-            { label: "Skill Training", href: "#training" }
           ],
           donateCta: { title: "Make a Difference Today", description: "Your contribution can change lives." },
           copyright: "© 2026 Vishwasi Sangati. All rights reserved."
+        });
+      } else if (activeTab === 'careers') {
+        const response = await apiClient.getCareers();
+        setCareersContent(response.data || {
+          sectionSubtitle: "Careers",
+          sectionTitle: "Join Our Team",
+          sectionDescription: "Work with Vishwasi Sangati to support education, healthcare, and community-led development across rural India.",
+          heroImage: "",
+          introTitle: "Build meaningful change with us",
+          introDescription: "We welcome people who care deeply about community development, field work, operations, communications, and program delivery.",
+          benefits: ["Purpose-driven work with community impact", "Collaborative and supportive team culture"],
+          jobs: []
         });
       } else if (activeTab === 'logo') {
         const response = await apiClient.getLogo();
@@ -248,6 +263,11 @@ export function AdminDashboard() {
           setLogoContent({ ...response.data, url: url ? `${url}${separator}t=${timestamp}` : "/src/assets/logo.png" });
         } else {
           setLogoContent({ url: "/src/assets/logo.png" });
+        }
+      } else if (activeTab === 'team') {
+        const response = await apiClient.getAllTeamMembers();
+        if (response.data) {
+          setTeamMembers(Array.isArray(response.data) ? response.data : []);
         }
       }
     } catch (error) {
@@ -414,6 +434,14 @@ export function AdminDashboard() {
     if (response.error) { toast.error(response.error); } else { toast.success('Footer updated successfully'); }
   };
 
+  const handleSaveCareers = async () => {
+    if (!careersContent) return;
+    setLoading(true);
+    const response = await apiClient.updateCareers(careersContent);
+    setLoading(false);
+    if (response.error) { toast.error(response.error); } else { toast.success('Careers page updated successfully'); }
+  };
+
   const handleLogoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -436,6 +464,85 @@ export function AdminDashboard() {
     const response = await apiClient.updateLogo(logoContent);
     setLoading(false);
     if (response.error) { toast.error(response.error); } else { toast.success('Logo updated successfully'); }
+  };
+
+  // Team management functions
+  const handleTeamPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingTeamPhoto(true);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingTeamPhoto(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setNewTeamMember({ ...newTeamMember, photo: response.url });
+      toast.success('Photo uploaded successfully');
+    }
+  };
+
+  const handleAddTeamMember = async () => {
+    if (!newTeamMember.name || !newTeamMember.position) {
+      toast.error('Name and position are required');
+      return;
+    }
+    
+    setLoading(true);
+    const response = await apiClient.createTeamMember(newTeamMember);
+    setLoading(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setTeamMembers([...teamMembers, response.data]);
+      setNewTeamMember({ name: '', position: '', photo: '', bio: '', order: teamMembers.length });
+      setShowAddTeamMember(false);
+      toast.success('Team member added successfully');
+    }
+  };
+
+  const handleUpdateTeamMember = async () => {
+    if (!editingTeamMember || !editingTeamMember.name || !editingTeamMember.position) {
+      toast.error('Name and position are required');
+      return;
+    }
+
+    setLoading(true);
+    const response = await apiClient.updateTeamMember(editingTeamMember._id, editingTeamMember);
+    setLoading(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setTeamMembers(teamMembers.map(member => member._id === editingTeamMember._id ? response.data : member));
+      setEditingTeamMember(null);
+      toast.success('Team member updated successfully');
+    }
+  };
+
+  const handleDeleteTeamMember = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this team member?')) return;
+
+    setLoading(true);
+    const response = await apiClient.deleteTeamMember(id);
+    setLoading(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setTeamMembers(teamMembers.filter(member => member._id !== id));
+      toast.success('Team member deleted successfully');
+    }
+  };
+
+  const startEditingTeamMember = (member: any) => {
+    setEditingTeamMember({ ...member });
+  };
+
+  const cancelEditingTeamMember = () => {
+    setEditingTeamMember(null);
   };
 
   const handleStoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -502,12 +609,14 @@ export function AdminDashboard() {
     { id: 'testimonials' as TabType, label: 'Testimonials', icon: Quote },
     { id: 'featured-project' as TabType, label: 'Featured Project', icon: StarIcon },
     { id: 'footer' as TabType, label: 'Footer', icon: MapPin },
+    { id: 'careers' as TabType, label: 'Careers', icon: Briefcase },
     { id: 'stats' as TabType, label: 'Impact Stats', icon: BarChart3 },
     { id: 'stories' as TabType, label: 'Impact Stories', icon: FileText },
     { id: 'contacts' as TabType, label: 'Contacts', icon: MessageSquare },
     { id: 'subscribers' as TabType, label: 'Subscribers', icon: Mail },
     { id: 'admins' as TabType, label: 'Admins', icon: UserPlus },
     { id: 'logo' as TabType, label: 'Site Logo', icon: Image },
+    { id: 'team' as TabType, label: 'Team Members', icon: UserPlus },
   ];
 
   return (
@@ -805,7 +914,7 @@ export function AdminDashboard() {
                       <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-bold text-gray-900">Our Work / Programs</h2>
                         <div className="flex gap-2">
-                          <button onClick={() => setOurWorkContent({ ...ourWorkContent, programs: [...(ourWorkContent.programs || []), { title: 'New Program', description: 'Description', image: '', icon: 'Heart', stats: '0', color: '#0F6B6B' }] })} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"><Plus size={20} />Add Program</button>
+                          <button onClick={() => setOurWorkContent({ ...ourWorkContent, programs: [...(ourWorkContent.programs || []), { title: 'New Program', slug: 'new-program', description: 'Description', image: '', icon: 'Heart', stats: '0', color: '#0F6B6B', fullDescription: 'Add full details for this program.', highlights: ['Key detail'] }] })} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"><Plus size={20} />Add Program</button>
                           <button onClick={handleSaveOurWork} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
                         </div>
                       </div>
@@ -820,12 +929,28 @@ export function AdminDashboard() {
                             <button onClick={() => { const progs = ourWorkContent.programs.filter((_: any, i: number) => i !== index); setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
                             <input type="text" value={prog.title} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].title = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold" placeholder="Program Title" />
                             <textarea value={prog.description} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].description = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Description" />
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <input type="text" value={prog.slug || ''} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].slug = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="URL Slug (e.g. education-program)" />
                               <input type="text" value={prog.stats} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].stats = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Stats (e.g. 610+ Children)" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
                               <input type="text" value={prog.image} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].image = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Image URL" />
                               <select value={prog.icon} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].icon = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                 <option value="GraduationCap">Graduation</option><option value="Stethoscope">Stethoscope</option><option value="Users">Users</option><option value="Heart">Heart</option><option value="BookOpen">Book</option><option value="Home">Home</option>
                               </select>
+                            </div>
+                            <textarea value={prog.fullDescription || ''} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].fullDescription = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Full detail page description" />
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="block text-sm font-medium text-gray-700">Detail Bullets</label>
+                                <button onClick={() => { const progs = [...ourWorkContent.programs]; progs[index].highlights = [...(progs[index].highlights || []), 'New detail']; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add Detail</button>
+                              </div>
+                              {(prog.highlights || []).map((detail: string, detailIndex: number) => (
+                                <div key={detailIndex} className="flex gap-2">
+                                  <input type="text" value={detail} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].highlights[detailIndex] = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Detail bullet" />
+                                  <button onClick={() => { const progs = [...ourWorkContent.programs]; progs[index].highlights = progs[index].highlights.filter((_: any, i: number) => i !== detailIndex); setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         ))}
@@ -933,24 +1058,72 @@ export function AdminDashboard() {
                             ))}
                           </div>
                         </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Program Links</label><button onClick={() => setFooterContent({ ...footerContent, programs: [...(footerContent.programs || []), { label: 'New Program', href: '#' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add</button></div>
-                          <div className="space-y-2">
-                            {(footerContent.programs || []).map((prog: any, i: number) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <input type="text" value={prog.label} onChange={(e) => { const progs = [...footerContent.programs]; progs[i].label = e.target.value; setFooterContent({ ...footerContent, programs: progs }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Label" />
-                                <input type="text" value={prog.href} onChange={(e) => { const progs = [...footerContent.programs]; progs[i].href = e.target.value; setFooterContent({ ...footerContent, programs: progs }); }} className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Link" />
-                                <button onClick={() => { const progs = footerContent.programs.filter((_: any, idx: number) => idx !== i); setFooterContent({ ...footerContent, programs: progs }); }} className="text-red-500 p-1"><Trash2 size={14} /></button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
                         <div className="border-t pt-4">
                           <h3 className="text-sm font-medium text-gray-700 mb-3">Donate CTA Section</h3>
                           <div className="space-y-3">
                             <div><label className="block text-xs text-gray-500 mb-1">CTA Title</label><input type="text" value={footerContent.donateCta?.title || ''} onChange={(e) => setFooterContent({ ...footerContent, donateCta: { ...footerContent.donateCta, title: e.target.value } })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
                             <div><label className="block text-xs text-gray-500 mb-1">CTA Description</label><textarea value={footerContent.donateCta?.description || ''} onChange={(e) => setFooterContent({ ...footerContent, donateCta: { ...footerContent.donateCta, description: e.target.value } })} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Careers Tab */}
+                  {activeTab === 'careers' && careersContent && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Careers Page</h2>
+                        <div className="flex gap-2">
+                          <button onClick={() => setCareersContent({ ...careersContent, jobs: [...(careersContent.jobs || []), { title: 'New Opening', location: 'Location', type: 'Full-time', summary: 'Role summary', requirements: ['Requirement'], applyEmail: careersContent.applyEmail || 'vishwasisangati@gmail.com' }] })} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"><Plus size={20} />Add Opening</button>
+                          <button onClick={handleSaveCareers} className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"><Save size={20} />Save Changes</button>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label><input type="text" value={careersContent.sectionSubtitle || ''} onChange={(e) => setCareersContent({ ...careersContent, sectionSubtitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Page Title</label><input type="text" value={careersContent.sectionTitle || ''} onChange={(e) => setCareersContent({ ...careersContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Page Description</label><textarea value={careersContent.sectionDescription || ''} onChange={(e) => setCareersContent({ ...careersContent, sectionDescription: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Hero Image URL</label><input type="text" value={careersContent.heroImage || ''} onChange={(e) => setCareersContent({ ...careersContent, heroImage: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div><label className="block text-sm font-medium text-gray-700 mb-2">Intro Title</label><input type="text" value={careersContent.introTitle || ''} onChange={(e) => setCareersContent({ ...careersContent, introTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                          <div><label className="block text-sm font-medium text-gray-700 mb-2">Default Apply Email</label><input type="email" value={careersContent.applyEmail || ''} onChange={(e) => setCareersContent({ ...careersContent, applyEmail: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="vishwasisangati@gmail.com" /></div>
+                        </div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Intro Description</label><textarea value={careersContent.introDescription || ''} onChange={(e) => setCareersContent({ ...careersContent, introDescription: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Benefits</label><button onClick={() => setCareersContent({ ...careersContent, benefits: [...(careersContent.benefits || []), 'New benefit'] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add Benefit</button></div>
+                          <div className="space-y-2">
+                            {(careersContent.benefits || []).map((benefit: string, i: number) => (
+                              <div key={i} className="flex gap-2">
+                                <input type="text" value={benefit} onChange={(e) => { const benefits = [...careersContent.benefits]; benefits[i] = e.target.value; setCareersContent({ ...careersContent, benefits }); }} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                                <button onClick={() => setCareersContent({ ...careersContent, benefits: careersContent.benefits.filter((_: any, idx: number) => idx !== i) })} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          {(careersContent.jobs || []).map((job: any, index: number) => (
+                            <div key={index} className="p-4 border border-gray-200 rounded-lg space-y-3 relative">
+                              <button onClick={() => setCareersContent({ ...careersContent, jobs: careersContent.jobs.filter((_: any, i: number) => i !== index) })} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                              <input type="text" value={job.title || ''} onChange={(e) => { const jobs = [...careersContent.jobs]; jobs[index].title = e.target.value; setCareersContent({ ...careersContent, jobs }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold" placeholder="Job Title" />
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <input type="text" value={job.location || ''} onChange={(e) => { const jobs = [...careersContent.jobs]; jobs[index].location = e.target.value; setCareersContent({ ...careersContent, jobs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Location" />
+                                <input type="text" value={job.type || ''} onChange={(e) => { const jobs = [...careersContent.jobs]; jobs[index].type = e.target.value; setCareersContent({ ...careersContent, jobs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Type" />
+                                <input type="email" value={job.applyEmail || ''} onChange={(e) => { const jobs = [...careersContent.jobs]; jobs[index].applyEmail = e.target.value; setCareersContent({ ...careersContent, jobs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Apply Email" />
+                              </div>
+                              <textarea value={job.summary || ''} onChange={(e) => { const jobs = [...careersContent.jobs]; jobs[index].summary = e.target.value; setCareersContent({ ...careersContent, jobs }); }} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Role Summary" />
+                              <div>
+                                <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Requirements</label><button onClick={() => { const jobs = [...careersContent.jobs]; jobs[index].requirements = [...(jobs[index].requirements || []), 'New requirement']; setCareersContent({ ...careersContent, jobs }); }} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add Requirement</button></div>
+                                <div className="space-y-2">
+                                  {(job.requirements || []).map((req: string, reqIndex: number) => (
+                                    <div key={reqIndex} className="flex gap-2">
+                                      <input type="text" value={req} onChange={(e) => { const jobs = [...careersContent.jobs]; jobs[index].requirements[reqIndex] = e.target.value; setCareersContent({ ...careersContent, jobs }); }} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                                      <button onClick={() => { const jobs = [...careersContent.jobs]; jobs[index].requirements = jobs[index].requirements.filter((_: any, i: number) => i !== reqIndex); setCareersContent({ ...careersContent, jobs }); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -1367,6 +1540,202 @@ export function AdminDashboard() {
                               ))}
                             </tbody>
                           </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Team Tab */}
+                  {activeTab === 'team' && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-900">Team Members</h2>
+                        <button
+                          onClick={() => setShowAddTeamMember(true)}
+                          className="flex items-center gap-2 px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] transition-colors"
+                        >
+                          <Plus size={20} />
+                          Add Team Member
+                        </button>
+                      </div>
+
+                      {/* Add Team Member Form */}
+                      {showAddTeamMember && (
+                        <div className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Team Member</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                              <input
+                                type="text"
+                                value={newTeamMember.name}
+                                onChange={(e) => setNewTeamMember({ ...newTeamMember, name: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                placeholder="Full name"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Position *</label>
+                              <input
+                                type="text"
+                                value={newTeamMember.position}
+                                onChange={(e) => setNewTeamMember({ ...newTeamMember, position: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                placeholder="Job title"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                              <textarea
+                                value={newTeamMember.bio}
+                                onChange={(e) => setNewTeamMember({ ...newTeamMember, bio: e.target.value })}
+                                rows={3}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                placeholder="Brief description"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Photo *</label>
+                              <div className="flex gap-4 items-center">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleTeamPhotoUpload}
+                                  disabled={uploadingTeamPhoto}
+                                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50"
+                                />
+                                {uploadingTeamPhoto && <div className="w-6 h-6 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div>}
+                              </div>
+                              {newTeamMember.photo && (
+                                <div className="mt-2">
+                                  <img src={newTeamMember.photo} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-4 mt-6">
+                            <button
+                              onClick={handleAddTeamMember}
+                              disabled={loading}
+                              className="px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] disabled:opacity-50"
+                            >
+                              {loading ? 'Adding...' : 'Add Member'}
+                            </button>
+                            <button
+                              onClick={() => setShowAddTeamMember(false)}
+                              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Edit Team Member Form */}
+                      {editingTeamMember && (
+                        <div className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Team Member</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                              <input
+                                type="text"
+                                value={editingTeamMember.name}
+                                onChange={(e) => setEditingTeamMember({ ...editingTeamMember, name: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Position *</label>
+                              <input
+                                type="text"
+                                value={editingTeamMember.position}
+                                onChange={(e) => setEditingTeamMember({ ...editingTeamMember, position: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                              <textarea
+                                value={editingTeamMember.bio}
+                                onChange={(e) => setEditingTeamMember({ ...editingTeamMember, bio: e.target.value })}
+                                rows={3}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Photo URL *</label>
+                              <input
+                                type="text"
+                                value={editingTeamMember.photo}
+                                onChange={(e) => setEditingTeamMember({ ...editingTeamMember, photo: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                              />
+                              {editingTeamMember.photo && (
+                                <div className="mt-2">
+                                  <img src={editingTeamMember.photo} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-4 mt-6">
+                            <button
+                              onClick={handleUpdateTeamMember}
+                              disabled={loading}
+                              className="px-6 py-2 bg-[#0F6B6B] text-white rounded-lg hover:bg-[#0d5757] disabled:opacity-50"
+                            >
+                              {loading ? 'Updating...' : 'Update Member'}
+                            </button>
+                            <button
+                              onClick={cancelEditingTeamMember}
+                              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Team Members List */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {teamMembers.map((member) => (
+                          <div key={member._id} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                            <div className="flex items-center gap-4 mb-4">
+                              <img
+                                src={member.photo}
+                                alt={member.name}
+                                className="w-16 h-16 object-cover rounded-full"
+                              />
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900">{member.name}</h4>
+                                <p className="text-[#E87D3E] text-sm">{member.position}</p>
+                              </div>
+                            </div>
+                            {member.bio && (
+                              <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
+                            )}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => startEditingTeamMember(member)}
+                                className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTeamMember(member._id)}
+                                className="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {teamMembers.length === 0 && !showAddTeamMember && !editingTeamMember && (
+                        <div className="text-center py-12 text-gray-500">
+                          <UserPlus size={48} className="mx-auto mb-4 opacity-50" />
+                          <p>No team members added yet. Click "Add Team Member" to get started.</p>
                         </div>
                       )}
                     </div>
