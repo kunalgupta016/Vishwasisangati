@@ -33,7 +33,7 @@ router.post('/', verifyToken, upload.single('file'), (req, res) => {
   }
   
   const baseUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://vishwasi-sangati-api.onrender.com'
+    ? 'https://vishwasisangati.onrender.com'
     : `${req.protocol}://${req.get('host')}`;
     
   const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
