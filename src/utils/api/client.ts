@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 const envApiUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_URL : null;
-const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : (envApiUrl || 'https://vishwasi-sangati-api.onrender.com/api');
+const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : (envApiUrl || 'https://vishwasisangati.onrender.com/api');
 
 export interface ApiResponse<T = any> {
   data?: T;
