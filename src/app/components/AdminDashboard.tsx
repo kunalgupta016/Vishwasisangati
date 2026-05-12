@@ -127,12 +127,14 @@ export function AdminDashboard() {
       } else if (activeTab === 'contacts') {
         const response = await apiClient.getAllContacts();
         if (response.data) {
-           setContacts(Array.isArray(response.data) ? response.data : (response.data as any[]).map((item: any) => item.value) || []);
+           const contactItems = Array.isArray(response.data) ? response.data : [];
+          setContacts(contactItems.map((item: any) => item.value || item));
         }
       } else if (activeTab === 'subscribers') {
         const response = await apiClient.getNewsletterSubscribers();
         if (response.data) {
-          setSubscribers(Array.isArray(response.data) ? response.data : (response.data as any[]).map((item: any) => item.value) || []);
+          const subscriberItems = Array.isArray(response.data) ? response.data : [];
+          setSubscribers(subscriberItems.map((item: any) => item.value || item));
         }
       } else if (activeTab === 'admins') {
         const response = await apiClient.getAdmins();
