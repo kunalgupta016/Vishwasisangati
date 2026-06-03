@@ -47,21 +47,36 @@ const defaultContent = {
 };
 
 export function OurWork() {
-  const [content, setContent] = useState(defaultContent);
+  const [content, setContent] = useState<any>(null);
 
   useEffect(() => {
     async function loadContent() {
       try {
         const response = await apiClient.getOurWork();
-        if (response.data) {
-          setContent({ ...defaultContent, ...(response.data as any) });
-        }
+        setContent({ ...defaultContent, ...((response.data as any) || {}) });
       } catch (error) {
         console.error("Failed to load our-work content:", error);
+        setContent(defaultContent);
       }
     }
     loadContent();
   }, []);
+
+  if (!content) return (
+    <section id="initiatives" className="py-24 bg-gradient-to-b from-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="animate-pulse space-y-8">
+          <div className="text-center space-y-3">
+            <div className="h-4 w-32 bg-gray-200 rounded mx-auto"></div>
+            <div className="h-10 w-48 bg-gray-200 rounded mx-auto"></div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1,2,3].map(i => <div key={i} className="h-80 bg-gray-100 rounded-3xl"></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <section id="initiatives" className="py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">

@@ -130,9 +130,7 @@ export function Footer() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
               {/* About Column */}
               <div className="lg:col-span-1">
-                <div className="mb-6">
-                  <img src={logoUrl} alt="Vishwasi Sangati" className="h-16 w-auto object-contain brightness-0 invert" />
-                </div>
+                 
                 <p className="text-white/80 leading-relaxed mb-6">
                   {content.description}
                 </p>

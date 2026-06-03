@@ -32,21 +32,36 @@ const defaultContent = {
 };
 
 export function Testimonials() {
-  const [content, setContent] = useState(defaultContent);
+  const [content, setContent] = useState<any>(null);
 
   useEffect(() => {
     async function loadContent() {
       try {
         const response = await apiClient.getTestimonials();
-        if (response.data) {
-          setContent({ ...defaultContent, ...(response.data as any) });
-        }
+        setContent({ ...defaultContent, ...((response.data as any) || {}) });
       } catch (error) {
         console.error("Failed to load testimonials content:", error);
+        setContent(defaultContent);
       }
     }
     loadContent();
   }, []);
+
+  if (!content) return (
+    <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="animate-pulse space-y-8">
+          <div className="text-center space-y-3">
+            <div className="h-4 w-32 bg-gray-200 rounded mx-auto"></div>
+            <div className="h-10 w-56 bg-gray-200 rounded mx-auto"></div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1,2,3].map(i => <div key={i} className="h-64 bg-gray-100 rounded-3xl"></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <section className="py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
@@ -93,11 +108,19 @@ export function Testimonials() {
 
                 {/* Author */}
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover ring-2 ring-[#0F6B6B]/20"
-                  />
+                  {testimonial.image ? (
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full object-cover ring-2 ring-[#0F6B6B]/20"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-[#0F6B6B] flex items-center justify-center ring-2 ring-[#0F6B6B]/20">
+                      <span className="text-white font-bold text-lg">
+                        {testimonial.name?.charAt(0)?.toUpperCase() || '?'}
+                      </span>
+                    </div>
+                  )}
                   <div>
                     <p className="font-semibold text-gray-900">{testimonial.name}</p>
                     <p className="text-sm text-[#0F6B6B]">{testimonial.role}</p>

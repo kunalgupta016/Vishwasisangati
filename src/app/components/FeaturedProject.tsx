@@ -22,21 +22,34 @@ const defaultContent = {
 
 export function FeaturedProject() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
-  const [content, setContent] = useState(defaultContent);
+  const [content, setContent] = useState<any>(null);
 
   useEffect(() => {
     async function loadContent() {
       try {
         const response = await apiClient.getFeaturedProject();
-        if (response.data) {
-          setContent({ ...defaultContent, ...(response.data as any) });
-        }
+        setContent({ ...defaultContent, ...((response.data as any) || {}) });
       } catch (error) {
         console.error("Failed to load featured project content:", error);
+        setContent(defaultContent);
       }
     }
     loadContent();
   }, []);
+
+  if (!content) return (
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="animate-pulse space-y-8">
+          <div className="text-center space-y-3">
+            <div className="h-4 w-24 bg-gray-200 rounded mx-auto"></div>
+            <div className="h-10 w-56 bg-gray-200 rounded mx-auto"></div>
+          </div>
+          <div className="h-96 bg-gray-100 rounded-3xl"></div>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <>

@@ -16,29 +16,28 @@ const defaultHero = {
 
 export function Hero() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
-  const [content, setContent] = useState(defaultHero);
+  const [content, setContent] = useState<any>(null);
 
   useEffect(() => {
     async function loadHeroContent() {
       try {
         const response = await apiClient.getHeroContent();
-        if (response.data) {
-          const data = { ...defaultHero, ...(response.data as any) };
-          const timestamp = (response as any).updatedAt ? new Date((response as any).updatedAt).getTime() : Date.now();
-          
-          if (data.mainImage) {
-            const separator = data.mainImage.includes('?') ? '&' : '?';
-            data.mainImage = `${data.mainImage}${separator}t=${timestamp}`;
-          }
-          if (data.backgroundImage) {
-            const separator = data.backgroundImage.includes('?') ? '&' : '?';
-            data.backgroundImage = `${data.backgroundImage}${separator}t=${timestamp}`;
-          }
-          
-          setContent(data);
+        const data = { ...defaultHero, ...((response.data as any) || {}) };
+        const timestamp = (response as any).updatedAt ? new Date((response as any).updatedAt).getTime() : Date.now();
+        
+        if (data.mainImage) {
+          const separator = data.mainImage.includes('?') ? '&' : '?';
+          data.mainImage = `${data.mainImage}${separator}t=${timestamp}`;
         }
+        if (data.backgroundImage) {
+          const separator = data.backgroundImage.includes('?') ? '&' : '?';
+          data.backgroundImage = `${data.backgroundImage}${separator}t=${timestamp}`;
+        }
+        
+        setContent(data);
       } catch (error) {
         console.error("Failed to load hero content:", error);
+        setContent(defaultHero);
       }
     }
     loadHeroContent();
@@ -55,6 +54,19 @@ export function Hero() {
     setIsContactFormOpen(true);
     toast.info('Contact us to learn more about donation options');
   };
+
+  if (!content) return (
+    <section id="home" className="relative min-h-screen flex items-center bg-gradient-to-br from-[#0F6B6B] via-[#0d5757] to-[#0a4545]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-32">
+        <div className="animate-pulse space-y-6">
+          <div className="h-6 w-48 bg-white/10 rounded-full"></div>
+          <div className="h-16 w-96 bg-white/10 rounded-lg"></div>
+          <div className="h-16 w-80 bg-white/10 rounded-lg"></div>
+          <div className="h-6 w-full max-w-xl bg-white/10 rounded-lg"></div>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <>

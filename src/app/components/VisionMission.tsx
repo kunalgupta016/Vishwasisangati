@@ -19,21 +19,22 @@ const defaultContent = {
 };
 
 export function VisionMission() {
-  const [content, setContent] = useState(defaultContent);
+  const [content, setContent] = useState<any>(null);
 
   useEffect(() => {
     async function loadContent() {
       try {
         const response = await apiClient.getVisionMission();
-        if (response.data) {
-          setContent({ ...defaultContent, ...(response.data as any) });
-        }
+        setContent({ ...defaultContent, ...((response.data as any) || {}) });
       } catch (error) {
         console.error("Failed to load vision-mission content:", error);
+        setContent(defaultContent);
       }
     }
     loadContent();
   }, []);
+
+  if (!content) return null;
 
   return (
     <section id="about" className="py-24 bg-white relative overflow-hidden">

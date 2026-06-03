@@ -80,6 +80,12 @@ export function AdminDashboard() {
 
   // Careers state
   const [careersContent, setCareersContent] = useState<any>(null);
+  const [uploadingCareersHero, setUploadingCareersHero] = useState(false);
+
+  // Generic uploading state for dynamic indices
+  const [uploadingTestimonialIndex, setUploadingTestimonialIndex] = useState<number | null>(null);
+  const [uploadingOurWorkIndex, setUploadingOurWorkIndex] = useState<number | null>(null);
+  const [uploadingEditTeamPhoto, setUploadingEditTeamPhoto] = useState(false);
 
   // Logo state
   const [logoContent, setLogoContent] = useState<any>(null);
@@ -563,6 +569,95 @@ export function AdminDashboard() {
     }
   };
 
+  // Testimonial image upload handler
+  const handleTestimonialImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingTestimonialIndex(index);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingTestimonialIndex(null);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      const items = [...testimonialsContent.testimonials];
+      items[index].image = response.url;
+      setTestimonialsContent({ ...testimonialsContent, testimonials: items });
+      toast.success('Image uploaded successfully');
+    }
+  };
+
+  // Our Work program image upload handler
+  const handleOurWorkImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingOurWorkIndex(index);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingOurWorkIndex(null);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      const progs = [...ourWorkContent.programs];
+      progs[index].image = response.url;
+      setOurWorkContent({ ...ourWorkContent, programs: progs });
+      toast.success('Image uploaded successfully');
+    }
+  };
+
+  // Careers hero image upload handler
+  const handleCareersHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingCareersHero(true);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingCareersHero(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setCareersContent({ ...careersContent, heroImage: response.url });
+      toast.success('Image uploaded successfully');
+    }
+  };
+
+  // Featured project image upload handler
+  const handleFeaturedProjectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFeaturedProject(true);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingFeaturedProject(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setFeaturedProjectContent({ ...featuredProjectContent, image: response.url });
+      toast.success('Image uploaded successfully');
+    }
+  };
+
+  // Edit team member photo upload handler
+  const handleEditTeamPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingEditTeamPhoto(true);
+    const response = await apiClient.uploadMedia(file);
+    setUploadingEditTeamPhoto(false);
+
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      setEditingTeamMember({ ...editingTeamMember, photo: response.url });
+      toast.success('Photo uploaded successfully');
+    }
+  };
+
   const addNewStory = () => {
     setStories([
       ...stories,
@@ -618,6 +713,8 @@ export function AdminDashboard() {
     { id: 'logo' as TabType, label: 'Site Logo', icon: Image },
     { id: 'team' as TabType, label: 'Team Members', icon: UserPlus },
   ];
+
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -933,9 +1030,25 @@ export function AdminDashboard() {
                               <input type="text" value={prog.slug || ''} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].slug = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="URL Slug (e.g. education-program)" />
                               <input type="text" value={prog.stats} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].stats = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Stats (e.g. 610+ Children)" />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <input type="text" value={prog.image} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].image = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Image URL" />
-                              <select value={prog.icon} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].icon = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-500 mb-1">Program Image</label>
+                              {prog.image && (
+                                <img src={prog.image} alt={prog.title} className="w-full h-32 object-cover rounded-lg mb-2" />
+                              )}
+                              <input type="text" value={prog.image} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].image = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Paste image URL here" />
+                              <div className="flex items-center gap-2 my-2">
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                                <span className="text-xs text-gray-400 font-medium">OR</span>
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input type="file" accept="image/*" onChange={(e) => handleOurWorkImageUpload(e, index)} disabled={uploadingOurWorkIndex === index} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-50" />
+                                {uploadingOurWorkIndex === index && <div className="w-5 h-5 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div>}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-500 mb-1">Icon</label>
+                              <select value={prog.icon} onChange={(e) => { const progs = [...ourWorkContent.programs]; progs[index].icon = e.target.value; setOurWorkContent({ ...ourWorkContent, programs: progs }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                 <option value="GraduationCap">Graduation</option><option value="Stethoscope">Stethoscope</option><option value="Users">Users</option><option value="Heart">Heart</option><option value="BookOpen">Book</option><option value="Home">Home</option>
                               </select>
                             </div>
@@ -982,7 +1095,22 @@ export function AdminDashboard() {
                               <input type="text" value={t.role} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].role = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Role" />
                             </div>
                             <textarea value={t.quote} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].quote = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Quote" />
-                            <input type="text" value={t.image} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].image = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Image URL" />
+                            <div>
+                              <label className="block text-xs font-medium text-gray-500 mb-1">Profile Image</label>
+                              {t.image && (
+                                <img src={t.image} alt={t.name} className="w-16 h-16 object-cover rounded-full mb-2" />
+                              )}
+                              <input type="text" value={t.image} onChange={(e) => { const items = [...testimonialsContent.testimonials]; items[index].image = e.target.value; setTestimonialsContent({ ...testimonialsContent, testimonials: items }); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Paste image URL here" />
+                              <div className="flex items-center gap-2 my-2">
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                                <span className="text-xs text-gray-400 font-medium">OR</span>
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input type="file" accept="image/*" onChange={(e) => handleTestimonialImageUpload(e, index)} disabled={uploadingTestimonialIndex === index} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-50" />
+                                {uploadingTestimonialIndex === index && <div className="w-5 h-5 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div>}
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1001,7 +1129,22 @@ export function AdminDashboard() {
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Title</label><input type="text" value={featuredProjectContent.sectionTitle || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">Project Title</label><input type="text" value={featuredProjectContent.title || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, title: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">Description</label><textarea value={featuredProjectContent.description || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, description: e.target.value })} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label><input type="text" value={featuredProjectContent.image || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, image: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Project Image</label>
+                          {featuredProjectContent.image && (
+                            <img src={featuredProjectContent.image} alt="Featured Project" className="w-full h-48 object-cover rounded-lg mb-2" />
+                          )}
+                          <input type="text" value={featuredProjectContent.image || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, image: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Paste image URL here" />
+                          <div className="flex items-center gap-2 my-2">
+                            <div className="flex-1 h-px bg-gray-200"></div>
+                            <span className="text-xs text-gray-400 font-medium">OR</span>
+                            <div className="flex-1 h-px bg-gray-200"></div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input type="file" accept="image/*" onChange={handleFeaturedProjectImageUpload} disabled={uploadingFeaturedProject} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50" />
+                            {uploadingFeaturedProject && <div className="w-5 h-5 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div>}
+                          </div>
+                        </div>
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">CTA Button Text</label><input type="text" value={featuredProjectContent.ctaText || ''} onChange={(e) => setFeaturedProjectContent({ ...featuredProjectContent, ctaText: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
                         <div>
                           <div className="flex items-center justify-between mb-2"><label className="block text-sm font-medium text-gray-700">Stats Badges</label><button onClick={() => setFeaturedProjectContent({ ...featuredProjectContent, stats: [...(featuredProjectContent.stats || []), { icon: 'Heart', label: 'New Stat' }] })} className="text-sm px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200"><Plus size={14} className="inline mr-1" />Add Stat</button></div>
@@ -1083,7 +1226,22 @@ export function AdminDashboard() {
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">Section Subtitle</label><input type="text" value={careersContent.sectionSubtitle || ''} onChange={(e) => setCareersContent({ ...careersContent, sectionSubtitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">Page Title</label><input type="text" value={careersContent.sectionTitle || ''} onChange={(e) => setCareersContent({ ...careersContent, sectionTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
                         <div><label className="block text-sm font-medium text-gray-700 mb-2">Page Description</label><textarea value={careersContent.sectionDescription || ''} onChange={(e) => setCareersContent({ ...careersContent, sectionDescription: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-2">Hero Image URL</label><input type="text" value={careersContent.heroImage || ''} onChange={(e) => setCareersContent({ ...careersContent, heroImage: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image</label>
+                          {careersContent.heroImage && (
+                            <img src={careersContent.heroImage} alt="Careers Hero" className="w-full h-48 object-cover rounded-lg mb-2" />
+                          )}
+                          <input type="text" value={careersContent.heroImage || ''} onChange={(e) => setCareersContent({ ...careersContent, heroImage: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Paste image URL here" />
+                          <div className="flex items-center gap-2 my-2">
+                            <div className="flex-1 h-px bg-gray-200"></div>
+                            <span className="text-xs text-gray-400 font-medium">OR</span>
+                            <div className="flex-1 h-px bg-gray-200"></div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input type="file" accept="image/*" onChange={handleCareersHeroImageUpload} disabled={uploadingCareersHero} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50" />
+                            {uploadingCareersHero && <div className="w-5 h-5 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div>}
+                          </div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div><label className="block text-sm font-medium text-gray-700 mb-2">Intro Title</label><input type="text" value={careersContent.introTitle || ''} onChange={(e) => setCareersContent({ ...careersContent, introTitle: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" /></div>
                           <div><label className="block text-sm font-medium text-gray-700 mb-2">Default Apply Email</label><input type="email" value={careersContent.applyEmail || ''} onChange={(e) => setCareersContent({ ...careersContent, applyEmail: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="vishwasisangati@gmail.com" /></div>
@@ -1664,18 +1822,34 @@ export function AdminDashboard() {
                               />
                             </div>
                             <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Photo URL *</label>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Photo *</label>
+                              {editingTeamMember.photo && (
+                                <div className="mb-2">
+                                  <img src={editingTeamMember.photo} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                                </div>
+                              )}
                               <input
                                 type="text"
                                 value={editingTeamMember.photo}
                                 onChange={(e) => setEditingTeamMember({ ...editingTeamMember, photo: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                placeholder="Paste image URL here"
                               />
-                              {editingTeamMember.photo && (
-                                <div className="mt-2">
-                                  <img src={editingTeamMember.photo} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
-                                </div>
-                              )}
+                              <div className="flex items-center gap-2 my-2">
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                                <span className="text-xs text-gray-400 font-medium">OR</span>
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleEditTeamPhotoUpload}
+                                  disabled={uploadingEditTeamPhoto}
+                                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50"
+                                />
+                                {uploadingEditTeamPhoto && <div className="w-5 h-5 border-2 border-[#0F6B6B] border-t-transparent rounded-full animate-spin"></div>}
+                              </div>
                             </div>
                           </div>
                           <div className="flex gap-4 mt-6">
@@ -1701,11 +1875,19 @@ export function AdminDashboard() {
                         {teamMembers.map((member) => (
                           <div key={member._id} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
                             <div className="flex items-center gap-4 mb-4">
-                              <img
-                                src={member.photo}
-                                alt={member.name}
-                                className="w-16 h-16 object-cover rounded-full"
-                              />
+                              {member.photo ? (
+                                <img
+                                  src={member.photo}
+                                  alt={member.name}
+                                  className="w-16 h-16 object-cover rounded-full"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 rounded-full bg-[#0F6B6B] flex items-center justify-center">
+                                  <span className="text-white font-bold text-xl">
+                                    {member.name?.charAt(0)?.toUpperCase() || '?'}
+                                  </span>
+                                </div>
+                              )}
                               <div className="flex-1">
                                 <h4 className="font-semibold text-gray-900">{member.name}</h4>
                                 <p className="text-[#E87D3E] text-sm">{member.position}</p>

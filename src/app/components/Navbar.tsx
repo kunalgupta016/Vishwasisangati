@@ -67,11 +67,7 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || !isHomePage
-          ? "bg-white/95 backdrop-blur-md shadow-lg"
-          : "bg-transparent"
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
@@ -92,11 +88,7 @@ export function Navbar() {
               <a
                 key={item.label}
                 href={item.href}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                  (scrolled || !isHomePage)
-                    ? "text-gray-700 hover:bg-[#0F6B6B]/10 hover:text-[#0F6B6B]"
-                    : "text-white hover:bg-white/10"
-                }`}
+                className="px-4 py-2 rounded-lg transition-all duration-200 text-gray-700 hover:bg-[#0F6B6B]/10 hover:text-[#0F6B6B]"
               >
                 {item.label}
               </a>
@@ -107,11 +99,7 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             <button 
               onClick={() => navigate('/admin/login')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 ${
-                (scrolled || !isHomePage)
-                  ? "text-[#0F6B6B] hover:bg-[#0F6B6B]/10"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className="flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 text-[#0F6B6B] hover:bg-[#0F6B6B]/10"
             >
               <Lock size={18} />
               <span className="text-sm">Admin</span>
@@ -128,9 +116,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`lg:hidden p-2 rounded-lg transition-colors ${
-              (scrolled || !isHomePage) ? "text-gray-700" : "text-white"
-            }`}
+            className="lg:hidden p-2 rounded-lg transition-colors text-gray-700"
           >
             {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>

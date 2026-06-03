@@ -89,11 +89,19 @@ export function ImpactStories({ limit, showViewAll = false }: ImpactStoriesProps
                 className="group flex flex-col bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-[#E87D3E]"
               >
                 <div className="relative h-80 shrink-0 overflow-hidden">
-                  <img
-                    src={story.image}
-                    alt={story.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  {story.image ? (
+                    <img
+                      src={story.image}
+                      alt={story.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#0F6B6B] to-[#0d5757] flex items-center justify-center">
+                      <span className="text-white font-bold text-7xl opacity-80">
+                        {story.name?.charAt(0)?.toUpperCase() || '?'}
+                      </span>
+                    </div>
+                  )}
                   {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-transparent"></div>
                   
